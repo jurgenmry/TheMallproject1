@@ -1,0 +1,160 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/Character.h"
+#include "MallProject/Interfaces/InteractInterface.h"
+#include "InputActionValue.h"
+#include "MallProjectCharacter.generated.h"
+
+
+USTRUCT()
+struct FInteractionData
+{
+	//This might change for sphere collision
+	GENERATED_USTRUCT_BODY()
+
+		FInteractionData()
+		: CurrentIntertactable(nullptr)
+		, LastInteractionCheckedTime(0.0f)
+		, bShouldTraceForItems(false)
+		, bIsInteracting(false)
+	{
+
+	};
+
+	UPROPERTY()
+		AActor* CurrentIntertactable;
+
+	UPROPERTY()
+	float LastInteractionCheckedTime;
+
+	bool bShouldTraceForItems;
+
+	bool bIsInteracting;
+};
+
+
+
+class UInputComponent;
+class USkeletalMeshComponent;
+class USceneComponent;
+class UCameraComponent;
+class UAnimMontage;
+class USoundBase;
+
+UCLASS(config=Game)
+class AMallProjectCharacter : public ACharacter
+{
+	GENERATED_BODY()
+
+	/** Pawn mesh: 1st person view (arms; seen only by self) */
+	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
+	USkeletalMeshComponent* Mesh1P;
+
+	/** First person camera */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UCameraComponent* FirstPersonCameraComponent;
+
+	/** MappingContext */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	class UInputMappingContext* DefaultMappingContext;
+
+	/** Jump Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	class UInputAction* JumpAction;
+
+	/** Move Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
+	class UInputAction* MoveAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* InteractAction;
+
+	
+public:
+	AMallProjectCharacter();
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	FInteractionData InteractionData;
+
+protected:
+	virtual void BeginPlay();
+
+public:
+		
+	/** Look Input Action */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* LookAction;
+
+	/** Bool for AnimBP to switch to another animation set */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
+	bool bHasRifle;
+
+	/** Setter to set the bool */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	void SetHasRifle(bool bNewHasRifle);
+
+	/** Getter for the bool */
+	UFUNCTION(BlueprintCallable, Category = Weapon)
+	bool GetHasRifle();
+
+protected:
+	/** Called for movement input */
+	void Move(const FInputActionValue& Value);
+
+	/** Called for looking input */
+	void Look(const FInputActionValue& Value);
+
+protected:
+	// APawn interface
+	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+	// End of APawn interface
+
+	//this 2 might change by sphere collision
+	UPROPERTY(VisibleAnywhere, Category = "Interaction")
+	TScriptInterface<IInteractInterface> TargetInteractable;
+
+public:
+	/** Returns Mesh1P subobject **/
+	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
+	/** Returns FirstPersonCameraComponent subobject **/
+	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+
+	//================================================================================//
+	// Variables & Properties
+	//================================================================================//
+
+
+
+	//----------- Interaction code --------------/
+
+	//For Tracing Under Crosshairs
+	bool PerformTrace(FHitResult& OutHitResult);
+
+	//This Works on the overlap Event for items
+	void TraceForItems();
+
+	//testing interaction with input button
+	void InteractInputButtonPressed();
+
+	FTimerHandle TimerHandle_Interaction;
+
+	//input
+	//void TraceButtonPressed()
+
+	void FoundInteractable(AActor* NewInteractable);
+	void NoInteractableFound();
+	void BeginInteract();
+	void EndInteract();
+	void Interact();
+
+
+
+
+
+};
+

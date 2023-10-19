@@ -3,6 +3,11 @@
 
 #include "MallProject/UserInterface/MallHud.h"
 
+//System includes:
+
+//custome includes:
+#include "MallProject/UserInterface/MainMenu.h"
+
 AMallHud::AMallHud()
 {
 }
@@ -11,10 +16,9 @@ void AMallHud::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//MainMenuWidget = CreateWidget<UMainMenu>(GetWorld(), MainMenuClass);
-	//if (!ensure(MainMenuClass != NULL)) return;
-	//MainMenuWidget->AddToViewport(5);
-	//MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
+	MainMenuWidget = CreateWidget<UMainMenu>(GetWorld(), MainMenuClass);
+	if (!ensure(MainMenuClass != NULL)) return;
+	MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
 
 	//InteractionWidget = CreateWidget<UInteractionWidget>(GetWorld(), InteractionWidgetClass);
 	//if (!ensure(InteractionWidgetClass != NULL)) return;
@@ -24,27 +28,30 @@ void AMallHud::BeginPlay()
 
 
 void AMallHud::DisplayMenu()
-{/*
+{
+	
 	if (MainMenuWidget)
 	{
+		FString DisplayString = "DisplayMenu";
+		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, DisplayString, 1);
+
 		bIsMenuVisible = true;
 		MainMenuWidget->SetVisibility(ESlateVisibility::Visible);
 	}
-	*/
+	
 }
 
 void AMallHud::HideMenu()
-{/*
+{
 	if (MainMenuWidget)
 	{
 		bIsMenuVisible = false;
 		MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
 	}
-	*/
 }
 
 void AMallHud::ToggleMenu()
-{/*
+{
 	if (bIsMenuVisible)
 	{
 		HideMenu();
@@ -55,11 +62,11 @@ void AMallHud::ToggleMenu()
 	else
 	{
 		DisplayMenu();
-		const FInputModeGameAndUI InputMode;
+		const FInputModeUIOnly InputMode;
 		GetOwningPlayerController()->SetInputMode(InputMode);
 		GetOwningPlayerController()->bShowMouseCursor = true;
 	}
-	*/
+	
 }
 
 void AMallHud::ShowInteractionWidget() const

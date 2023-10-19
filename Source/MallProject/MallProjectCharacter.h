@@ -49,6 +49,12 @@ class AMallProjectCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+public:
+
+	//================================================================================//
+	// Variables & Properties
+	//================================================================================//
+
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
 	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
 	USkeletalMeshComponent* Mesh1P;
@@ -69,22 +75,14 @@ class AMallProjectCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
 	class UInputAction* MoveAction;
 
+	/** Interaction With the world action **/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* InteractAction;
 
-	
-public:
-	AMallProjectCharacter();
+	/** Call the Pause menu action **/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* MenuAction;
 
-	virtual void Tick(float DeltaSeconds) override;
-
-	FInteractionData InteractionData;
-
-protected:
-	virtual void BeginPlay();
-
-public:
-		
 	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
@@ -93,42 +91,70 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
 	bool bHasRifle;
 
-	/** Setter to set the bool */
+
+
+
+
+	FInteractionData InteractionData;
+
+	//================================================================================//
+	// FUNCTIONS
+	//================================================================================//
+	
+	AMallProjectCharacter();
+
+	virtual void BeginPlay();
+
+	virtual void Tick(float DeltaSeconds) override;
+
+	void Move(const FInputActionValue& Value);
+
+	void Look(const FInputActionValue& Value);
+
+
+	/******************* Setters *******************/
+	/***********************************************/
+
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	void SetHasRifle(bool bNewHasRifle);
 
-	/** Getter for the bool */
+	/******************* Getters *******************/
+	/***********************************************/
+
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool GetHasRifle();
 
-protected:
-	/** Called for movement input */
-	void Move(const FInputActionValue& Value);
-
-	/** Called for looking input */
-	void Look(const FInputActionValue& Value);
-
-protected:
-	// APawn interface
-	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
-	// End of APawn interface
-
-	//this 2 might change by sphere collision
-	UPROPERTY(VisibleAnywhere, Category = "Interaction")
-	TScriptInterface<IInteractInterface> TargetInteractable;
-
-public:
-	/** Returns Mesh1P subobject **/
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
-	/** Returns FirstPersonCameraComponent subobject **/
+
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
+protected:
+	
 
 	//================================================================================//
 	// Variables & Properties
 	//================================================================================//
 
+	UPROPERTY()
+	class AMallHud* HUD;
 
+	
+	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+	
+	UPROPERTY(VisibleAnywhere, Category = "Interaction")
+	TScriptInterface<IInteractInterface> TargetInteractable;
+
+
+
+	//================================================================================//
+	// FUNCTIONS
+	//================================================================================//
+
+	void ToggleMenu();
+
+
+
+public:
 
 	//----------- Interaction code --------------/
 

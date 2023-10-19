@@ -104,7 +104,9 @@ void AInteractableActor::Interact(AMallProjectCharacter* CharacterReference)
 
 	if (CharacterReference)
 	{
-		//TakePickUp(CharacterReference);
+		FString textString = "Interaction Succesful"; 
+		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, textString, 1);
+		Destroy();
 	}
 }
 

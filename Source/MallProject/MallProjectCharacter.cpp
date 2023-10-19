@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 
 //Custome Includes
+#include "MallProject/UserInterface/MallHud.h"
 
 
 //////////////////////////////////////////////////////////////////////////
@@ -56,6 +57,14 @@ void AMallProjectCharacter::BeginPlay()
 		}
 	}
 
+	HUD = Cast<AMallHud>(GetWorld()->GetFirstPlayerController()->GetHUD());
+	if (HUD == nullptr)
+	{
+		FString HUDString = "NULL HUD";
+		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, HUDString, 1);
+		return;
+	}
+
 }
 
 void AMallProjectCharacter::Tick(float DeltaSeconds)
@@ -86,6 +95,10 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		//Interacting
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::BeginInteract);
 		EnhancedInputComponent->BindAction(InteractAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::EndInteract);
+
+
+		//Menu Toggling
+		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::ToggleMenu);
 	}
 }
 
@@ -135,6 +148,11 @@ bool AMallProjectCharacter::GetHasRifle()
 void AMallProjectCharacter::InteractInputButtonPressed()
 {
 	InteractionData.bShouldTraceForItems = true;
+}
+
+void AMallProjectCharacter::ToggleMenu()
+{
+	HUD->ToggleMenu();
 }
 
 bool AMallProjectCharacter::PerformTrace(FHitResult& OutHitResult)

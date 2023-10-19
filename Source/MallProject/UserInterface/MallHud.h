@@ -20,11 +20,11 @@ public:
 	// Properties & Variables
 	//==================================================================//
 
-	//To Display the pause menu
+	
 	bool bIsMenuVisible;
 
-	//UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-	//TSubclassOf<class UMainMenu> MainMenuClass;
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<class UMainMenu> MainMenuClass;
 
 	//UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	//TSubclassOf<class UInteractionWidget> InteractionWidgetClass;
@@ -49,8 +49,8 @@ protected:
 	// Properties & Variables
 	//==================================================================//
 
-	//UPROPERTY()
-	//UMainMenu* MainMenuWidget;
+	UPROPERTY()
+	UMainMenu* MainMenuWidget;
 
 	//UPROPERTY()
 	//UInteractionWidget* InteractionWidget;

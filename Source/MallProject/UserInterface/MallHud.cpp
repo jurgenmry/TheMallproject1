@@ -7,6 +7,8 @@
 
 //custome includes:
 #include "MallProject/UserInterface/MainMenu.h"
+#include "MallProject/UserInterface/BlurEffectWidget.h"
+#include "Kismet/GameplayStatics.h"
 
 AMallHud::AMallHud()
 {
@@ -18,8 +20,15 @@ void AMallHud::BeginPlay()
 
 	MainMenuWidget = CreateWidget<UMainMenu>(GetWorld(), MainMenuClass);
 	if (!ensure(MainMenuClass != NULL)) return;
+	MainMenuWidget->AddToViewport();
 	MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
 
+	BlurWidget = CreateWidget<UBlurEffectWidget>(GetWorld(), BlurWidgetClass);
+	if (!ensure(BlurWidgetClass != NULL)) return;
+	BlurWidget->AddToViewport(-1);
+	BlurWidget->SetVisibility(ESlateVisibility::Visible);
+
+	
 	//InteractionWidget = CreateWidget<UInteractionWidget>(GetWorld(), InteractionWidgetClass);
 	//if (!ensure(InteractionWidgetClass != NULL)) return;
 	//InteractionWidget->AddToViewport(-1);
@@ -58,13 +67,15 @@ void AMallHud::ToggleMenu()
 		const FInputModeGameOnly InputMode;
 		GetOwningPlayerController()->SetInputMode(InputMode);
 		GetOwningPlayerController()->bShowMouseCursor = false;
+		UGameplayStatics::SetGamePaused(GetWorld(),false);
 	}
 	else
 	{
 		DisplayMenu();
-		const FInputModeUIOnly InputMode;
+		const FInputModeGameAndUI InputMode;
 		GetOwningPlayerController()->SetInputMode(InputMode);
 		GetOwningPlayerController()->bShowMouseCursor = true;
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
 	}
 	
 }

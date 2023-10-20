@@ -32,6 +32,9 @@ AMallProjectCharacter::AMallProjectCharacter()
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
+	//FirstPersonCameraComponent->bConstrainAspectRatio = true;
+	//FirstPersonCameraComponent->AspectRatio = 1.333333f;
+
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	Mesh1P->SetOnlyOwnerSee(true);
@@ -98,7 +101,9 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 
 		//Menu Toggling
-		EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::ToggleMenu);
+		FEnhancedInputActionEventBinding& Toggle = EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::ToggleMenu);
+		auto handle = Toggle.GetAction();//bExecuteWhenPaused = true; //EVEN THOUGH THE GAME IS PAUSED, CATCH THIS EVENT
+		handle->bTriggerWhenPaused;//bExecuteWhenPaused = true;
 	}
 }
 

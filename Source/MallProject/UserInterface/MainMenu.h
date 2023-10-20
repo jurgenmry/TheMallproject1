@@ -16,10 +16,17 @@ class MALLPROJECT_API UMainMenu : public UUserWidget
 
 public:
 
+
+	virtual void BeginPlay();
+
+	//virtual bool Initialize();
+
 	UPROPERTY()
 	class AMallProjectCharacter* Character;
 
-
+	UPROPERTY()
+	class AMallHud* HUD;
+	
 	//Display information on the character objects
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "PauseMenu")
 	class UButton* Inventory;
@@ -33,7 +40,7 @@ public:
 	UButton* SubmenutScreen;
 
 	//Go back to playing the game
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = "PauseMenu")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = "PauseMenu")
 	UButton* ResumeGame;
 
 	//The description for every button 
@@ -63,4 +70,9 @@ protected:
 	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;
 	
+	//Pressing of Buttons: 
+
+	UFUNCTION()
+	void OnResumeGameButtonPressed();
+
 };

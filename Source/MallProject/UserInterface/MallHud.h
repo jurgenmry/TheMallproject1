@@ -23,11 +23,14 @@ public:
 	
 	bool bIsMenuVisible;
 
+	bool bGamePause = false;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<class UMainMenu> MainMenuClass;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<class UBlurEffectWidget> BlurWidgetClass;
+
 
 	//UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	//TSubclassOf<class UInteractionWidget> InteractionWidgetClass;

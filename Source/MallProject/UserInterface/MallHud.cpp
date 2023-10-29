@@ -28,6 +28,7 @@ void AMallHud::BeginPlay()
 	BlurWidget->AddToViewport(-1);
 	BlurWidget->SetVisibility(ESlateVisibility::Visible);
 
+
 	
 	//InteractionWidget = CreateWidget<UInteractionWidget>(GetWorld(), InteractionWidgetClass);
 	//if (!ensure(InteractionWidgetClass != NULL)) return;
@@ -41,8 +42,8 @@ void AMallHud::DisplayMenu()
 	
 	if (MainMenuWidget)
 	{
-		FString DisplayString = "DisplayMenu";
-		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, DisplayString, 1);
+		//FString DisplayString = "DisplayMenu";
+		//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, DisplayString, 1);
 
 		bIsMenuVisible = true;
 		MainMenuWidget->SetVisibility(ESlateVisibility::Visible);
@@ -67,7 +68,10 @@ void AMallHud::ToggleMenu()
 		const FInputModeGameOnly InputMode;
 		GetOwningPlayerController()->SetInputMode(InputMode);
 		GetOwningPlayerController()->bShowMouseCursor = false;
+		bGamePause = false;
 		UGameplayStatics::SetGamePaused(GetWorld(),false);
+		//FInputActionBinding& toggle = InputComponent->BindAction("Pause", IE_Pressed, this, &AMallProjectCharacter::Pause);
+		//toggle.bExecuteWhenPaused = true;
 	}
 	else
 	{
@@ -75,6 +79,7 @@ void AMallHud::ToggleMenu()
 		const FInputModeGameAndUI InputMode;
 		GetOwningPlayerController()->SetInputMode(InputMode);
 		GetOwningPlayerController()->bShowMouseCursor = true;
+		bGamePause = false;
 		UGameplayStatics::SetGamePaused(GetWorld(), true);
 	}
 	

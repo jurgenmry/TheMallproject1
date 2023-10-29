@@ -10,6 +10,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/SpotLightComponent.h"
 
 //Custome Includes
 #include "MallProject/UserInterface/MallHud.h"
@@ -43,6 +44,11 @@ AMallProjectCharacter::AMallProjectCharacter()
 	Mesh1P->CastShadow = false;
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
+
+
+	FlashLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashLight"));
+	FlashLight->SetupAttachment(FirstPersonCameraComponent);
+	FlashLight->SetVisibility(true);
 
 }
 
@@ -101,9 +107,12 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 
 		//Menu Toggling
-		FEnhancedInputActionEventBinding& Toggle = EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::ToggleMenu);
-		auto handle = Toggle.GetAction();//bExecuteWhenPaused = true; //EVEN THOUGH THE GAME IS PAUSED, CATCH THIS EVENT
-		handle->bTriggerWhenPaused;//bExecuteWhenPaused = true;
+		FEnhancedInputActionEventBinding& Toggle = EnhancedInputComponent->BindAction(MenuAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::Pause);
+		Menu = Toggle.GetAction();//bExecuteWhenPaused = true; //EVEN THOUGH THE GAME IS PAUSED, CATCH THIS EVENT
+		Menu->bTriggerWhenPaused;//bExecuteWhenPaused = true;
+
+		//flash light Toggling
+		EnhancedInputComponent->BindAction(LightAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::ToggleFlashLight);
 	}
 }
 
@@ -155,9 +164,33 @@ void AMallProjectCharacter::InteractInputButtonPressed()
 	InteractionData.bShouldTraceForItems = true;
 }
 
+void AMallProjectCharacter::Pause()
+{
+	//Menu->bTriggerWhenPaused;
+	UInputAction* Menu2 = const_cast<UInputAction*>(Menu);
+	Menu2->bTriggerWhenPaused = true;
+	
+	if (HUD -> bGamePause)
+	{
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
+		HUD->ToggleMenu();
+	}
+	else
+	{
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+		HUD->ToggleMenu();
+	}
+}
+
 void AMallProjectCharacter::ToggleMenu()
 {
+
 	HUD->ToggleMenu();
+}
+
+void AMallProjectCharacter::ToggleFlashLight()
+{
+	FlashLight->ToggleVisibility();
 }
 
 bool AMallProjectCharacter::PerformTrace(FHitResult& OutHitResult)
@@ -325,6 +358,8 @@ void AMallProjectCharacter::Interact()
 		TargetInteractable->Interact(this);
 	}
 }
+
+
 
 
 

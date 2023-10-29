@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "EnhancedInputComponent.h"
 #include "GameFramework/Character.h"
 #include "MallProject/Interfaces/InteractInterface.h"
 #include "InputActionValue.h"
@@ -43,6 +44,7 @@ class USceneComponent;
 class UCameraComponent;
 class UAnimMontage;
 class USoundBase;
+class USpotLightComponent;
 
 UCLASS(config=Game)
 class AMallProjectCharacter : public ACharacter
@@ -55,13 +57,30 @@ public:
 	// Variables & Properties
 	//================================================================================//
 
+	/** Bool for AnimBP to switch to another animation set */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
+	bool bHasRifle;
+
+	FInteractionData InteractionData;
+
+	//=======================
+	//Components
+	//=======================
+
 	/** Pawn mesh: 1st person view (arms; seen only by self) */
-	UPROPERTY(VisibleDefaultsOnly, Category=Mesh)
+	UPROPERTY(VisibleDefaultsOnly, Category= Components)
 	USkeletalMeshComponent* Mesh1P;
 
-	/** First person camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	USpotLightComponent* FlashLight;
+
+
+	//=======================
+	//Input
+	//=======================
 
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category=Input, meta=(AllowPrivateAccess = "true"))
@@ -87,15 +106,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LookAction;
 
-	/** Bool for AnimBP to switch to another animation set */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
-	bool bHasRifle;
+	/** Turn off On Flash light **/
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* LightAction;
 
-
-
-
-
-	FInteractionData InteractionData;
 
 	//================================================================================//
 	// FUNCTIONS
@@ -128,6 +142,8 @@ public:
 
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
+	USpotLightComponent* GetSpolight() const { return FlashLight; }
+
 protected:
 	
 
@@ -137,9 +153,6 @@ protected:
 
 	UPROPERTY()
 	class AMallHud* HUD;
-
-	
-	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	
 	UPROPERTY(VisibleAnywhere, Category = "Interaction")
 	TScriptInterface<IInteractInterface> TargetInteractable;
@@ -150,8 +163,12 @@ protected:
 	// FUNCTIONS
 	//================================================================================//
 
+
+	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+
 	void ToggleMenu();
 
+	void ToggleFlashLight();
 
 
 public:
@@ -178,9 +195,8 @@ public:
 	void EndInteract();
 	void Interact();
 
+	void Pause();
 
-
-
-
+	const UInputAction* Menu;
 };
 

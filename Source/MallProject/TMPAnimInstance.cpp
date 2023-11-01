@@ -8,8 +8,9 @@
 #include "MallProjectCharacter.h"
 
 //Engine includes. 
-
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+
 
 void UTMPAnimInstance::NativeInitializeAnimation()
 {
@@ -48,5 +49,9 @@ void UTMPAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		{
 			bIsAcelerating = false;
 		}
+
+		FRotator AimRotation = Character->GetBaseAimRotation();
+		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(Character->GetVelocity());
+		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation,AimRotation).Yaw;
 	}
 }

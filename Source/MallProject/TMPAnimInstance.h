@@ -57,6 +57,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bWantsToRun;
 	
+	//Use for strafing behaviour, offset yaw
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float MovementOffsetYaw;
+
 	//================================================================================//
 	// FUNCTIONS
 	//================================================================================//

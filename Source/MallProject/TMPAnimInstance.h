@@ -61,6 +61,10 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float MovementOffsetYaw;
 
+	//Offsetyaw frame before we start moving. 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float LastMovementOffsetYaw;
+
 	//================================================================================//
 	// FUNCTIONS
 	//================================================================================//

@@ -53,5 +53,11 @@ void UTMPAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		FRotator AimRotation = Character->GetBaseAimRotation();
 		FRotator MovementRotation = UKismetMathLibrary::MakeRotFromX(Character->GetVelocity());
 		MovementOffsetYaw = UKismetMathLibrary::NormalizedDeltaRotator(MovementRotation,AimRotation).Yaw;
+
+		if (Character->GetVelocity().Size() > 0.0f)
+		{
+			LastMovementOffsetYaw = MovementOffsetYaw;
+		}
+		
 	}
 }

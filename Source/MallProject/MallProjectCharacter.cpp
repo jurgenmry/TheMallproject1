@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/SpotLightComponent.h"
+#include "GameFramework/SpringArmComponent.h"
 
 //Custome Includes
 #include "MallProject/UserInterface/MallHud.h"
@@ -27,9 +28,15 @@ AMallProjectCharacter::AMallProjectCharacter()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 		
+
+	//Create the srping arm component
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->TargetArmLength = 0.0f;
+	CameraBoom->SetupAttachment(GetCapsuleComponent());
+
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
+	FirstPersonCameraComponent->SetupAttachment(CameraBoom);
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
 	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
@@ -45,10 +52,12 @@ AMallProjectCharacter::AMallProjectCharacter()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
-
+	//Create the Default flashlight
 	FlashLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashLight"));
 	FlashLight->SetupAttachment(FirstPersonCameraComponent);
 	FlashLight->SetVisibility(true);
+
+
 
 }
 

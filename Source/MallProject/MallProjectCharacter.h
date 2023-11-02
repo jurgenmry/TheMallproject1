@@ -45,6 +45,7 @@ class UCameraComponent;
 class UAnimMontage;
 class USoundBase;
 class USpotLightComponent;
+class USpringArmComponent;
 
 UCLASS(config=Game)
 class AMallProjectCharacter : public ACharacter
@@ -73,6 +74,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	USpotLightComponent* FlashLight;
@@ -143,6 +147,8 @@ public:
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
 
 	USpotLightComponent* GetSpolight() const { return FlashLight; }
+
+	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 protected:
 	

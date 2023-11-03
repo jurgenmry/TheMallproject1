@@ -62,6 +62,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
 	bool bHasRifle;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool bIsJogging;
+
 	FInteractionData InteractionData;
 
 	//=======================
@@ -113,6 +116,9 @@ public:
 	/** Turn off On Flash light **/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LightAction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* JogAction;
 
 
 	//================================================================================//
@@ -175,6 +181,9 @@ protected:
 	void ToggleMenu();
 
 	void ToggleFlashLight();
+
+	void StartJogging();
+	void EndJogging();
 
 
 public:

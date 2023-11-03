@@ -58,6 +58,17 @@ void UTMPAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		{
 			LastMovementOffsetYaw = MovementOffsetYaw;
 		}
+
+		//For the Runing
+
+		if (Character ->bIsJogging)
+		{
+			bWantsToRun = true;
+		}
+		else
+		{
+			bWantsToRun = false;
+		}
 		
 	}
 }

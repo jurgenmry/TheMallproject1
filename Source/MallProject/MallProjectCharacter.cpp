@@ -12,6 +12,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 //Custome Includes
 #include "MallProject/UserInterface/MallHud.h"
@@ -88,7 +89,6 @@ void AMallProjectCharacter::BeginPlay()
 void AMallProjectCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
 	TraceForItems();
 }
 
@@ -122,6 +122,10 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 		//flash light Toggling
 		EnhancedInputComponent->BindAction(LightAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::ToggleFlashLight);
+
+		//Run 
+		EnhancedInputComponent->BindAction(JogAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::StartJogging);
+		EnhancedInputComponent->BindAction(JogAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::EndJogging);
 	}
 }
 
@@ -200,6 +204,24 @@ void AMallProjectCharacter::ToggleMenu()
 void AMallProjectCharacter::ToggleFlashLight()
 {
 	FlashLight->ToggleVisibility();
+}
+
+
+void AMallProjectCharacter::StartJogging()
+{
+	//FString Sprint = "Is Sprinting";
+	//GEngine->AddOnScreenDebugMessage(5, 3.0f, FColor::Red, Sprint, 1);
+	this->GetCharacterMovement()->MaxWalkSpeed = 630.0f;
+	bIsJogging = true;
+}
+
+void AMallProjectCharacter::EndJogging()
+{
+	//FString Sprint = "Is NOT Sprinting";
+	//GEngine->AddOnScreenDebugMessage(5, 3.0f, FColor::Red, Sprint, 1);
+	
+	this->GetCharacterMovement()->MaxWalkSpeed = 200.0f;
+	bIsJogging = false;
 }
 
 bool AMallProjectCharacter::PerformTrace(FHitResult& OutHitResult)

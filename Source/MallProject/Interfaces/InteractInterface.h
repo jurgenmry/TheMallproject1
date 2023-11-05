@@ -12,6 +12,7 @@ UENUM()
 enum class EInteractableType : uint8
 {
 	Pickup UMETA(DisplayName = "Pickup"),
+	Weapon UMETA(DisplayName = "Weapon"), //Technically weapon is pickup
 	NonPlayableCharacter UMETA(DisplayName = "NonPlayableCharacter"),
 	Device UMETA(DisplayName = "Device"), //Windows, doors, etc
 	Toggle UMETA(DisplayName = "Toggle"), //Buttons, Switch, Leaver, Use to active devices

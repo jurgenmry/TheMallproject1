@@ -9,6 +9,7 @@
 #include "MallProject/UserInterface/MainMenu.h"
 #include "MallProject/UserInterface/BlurEffectWidget.h"
 #include "Kismet/GameplayStatics.h"
+#include "MallProject/UserInterface/InteractWidget.h"
 
 AMallHud::AMallHud()
 {
@@ -28,12 +29,11 @@ void AMallHud::BeginPlay()
 	BlurWidget->AddToViewport(-1);
 	BlurWidget->SetVisibility(ESlateVisibility::Visible);
 
-
 	
-	//InteractionWidget = CreateWidget<UInteractionWidget>(GetWorld(), InteractionWidgetClass);
-	//if (!ensure(InteractionWidgetClass != NULL)) return;
-	//InteractionWidget->AddToViewport(-1);
-	//InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
+	InteractionWidget = CreateWidget<UInteractWidget>(GetWorld(), InteractWidgetClass);
+	if (!ensure(InteractWidgetClass != NULL)) return;
+	InteractionWidget->AddToViewport();
+	InteractionWidget->SetVisibility(ESlateVisibility::Visible);
 }
 
 
@@ -86,20 +86,18 @@ void AMallHud::ToggleMenu()
 }
 
 void AMallHud::ShowInteractionWidget() const
-{/*
+{
 	if (InteractionWidget)
 	{
-		InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
+		InteractionWidget->PlayAnimationToFade();
 	}
-	*/
 }
 
 void AMallHud::HideInteractionWidget() const
-{ /*
+{ 
 	if (InteractionWidget)
 	{
-		InteractionWidget->SetVisibility(ESlateVisibility::Collapsed);
+		InteractionWidget->ReverseFadeAnimation();
 	}
-	*/
 }
 

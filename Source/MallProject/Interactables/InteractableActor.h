@@ -7,6 +7,8 @@
 #include "MallProject/Interfaces/InteractInterface.h"
 #include "InteractableActor.generated.h"
 
+
+
 UCLASS()
 class MALLPROJECT_API AInteractableActor : public AActor, public IInteractInterface
 {
@@ -14,14 +16,15 @@ class MALLPROJECT_API AInteractableActor : public AActor, public IInteractInterf
 	
 public:	
 
-
-
 	//================================================================================//
 	// Variables & Properties
 	//================================================================================//
 
 	UPROPERTY(EditAnywhere, Category = "Components")
 	class UStaticMeshComponent* ItemMesh;
+
+	UPROPERTY(EditAnywhere, Category = "Components")
+	class USkeletalMeshComponent* ItemSkeleton;
 
 	UPROPERTY(EditAnywhere, Category = "Components")
 	class UBoxComponent* BoxComps;
@@ -51,12 +54,14 @@ public:
 
 	virtual void Interact(class AMallProjectCharacter* CharacterReference) override;
 
+	//Getters
 
+	FORCEINLINE USkeletalMeshComponent* GetItemSkeleton() const { return ItemSkeleton; }
+	FORCEINLINE UBoxComponent* GetBoxComponent() const { return BoxComps; }
+	FORCEINLINE USphereComponent* GetSphereComponent() const { return SphereComps;  }
 
 protected:
 	
-
-
 
 	UFUNCTION()
 	void OnSphereOverlap(UPrimitiveComponent* OverlappedComponent,

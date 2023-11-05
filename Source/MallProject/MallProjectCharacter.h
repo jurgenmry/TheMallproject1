@@ -67,6 +67,9 @@ public:
 
 	FInteractionData InteractionData;
 
+	UPROPERTY()
+	class AMallHud* HUD;
+
 	//=======================
 	//Components
 	//=======================
@@ -117,8 +120,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* LightAction;
 
+	/** Start Jogging **/
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* JogAction;
+
 
 
 	//================================================================================//
@@ -163,13 +168,15 @@ protected:
 	// Variables & Properties
 	//================================================================================//
 
-	UPROPERTY()
-	class AMallHud* HUD;
-	
 	UPROPERTY(VisibleAnywhere, Category = "Interaction")
 	TScriptInterface<IInteractInterface> TargetInteractable;
 
+	//UPROPERTY()
+	//EquippedWeapond
+	class AWeaponInteractableActor* EquippedWeapon;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta =(AllowPrivateAccess = "true"))
+	TSubclassOf<AWeaponInteractableActor> DefaultWeaponClass;
 
 	//================================================================================//
 	// FUNCTIONS
@@ -185,6 +192,7 @@ protected:
 	void StartJogging();
 	void EndJogging();
 
+	void EquipWeapon(class AWeaponInteractableActor* WeaponToEquip);//Something in parenthesis);
 
 public:
 

@@ -7,27 +7,36 @@
 
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/SkeletalMeshComponent.h"
 
 //Custome includes:
-
+#include "MallProject/UserInterface/MallHud.h"
 #include "MallProject/MallProjectCharacter.h"
+#include "MallProject/UserInterface/InteractWidget.h"
 
 AInteractableActor::AInteractableActor()
+	//:Type(EInteractableType::Pickup)
 {
 
 	PrimaryActorTick.bCanEverTick = false;
 
-	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
-	SetRootComponent(ItemMesh);
-	ItemMesh->SetSimulatePhysics(true);
-
 	BoxComps = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComps"));
-	BoxComps->SetupAttachment(GetRootComponent());
+	//BoxComps->SetupAttachment(GetRootComponent());
+	SetRootComponent(BoxComps);
+	BoxComps->SetHiddenInGame(true);
+
+	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
+	ItemMesh->SetupAttachment(BoxComps);
+	ItemMesh->SetSimulatePhysics(true);
 
 	SphereComps = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComps"));
 	SphereComps->SetSphereRadius(70.0f);
 	SphereComps->SetupAttachment(GetRootComponent());
 
+	ItemSkeleton = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemSkeleton"));
+	ItemSkeleton->SetupAttachment(GetRootComponent());
+	//ItemSkeleton->SetSimulatePhysics(true);
+	InstaceInteractableData.InteractableType = EInteractableType::Pickup;
 }
 
 
@@ -52,6 +61,8 @@ void AInteractableActor::OnSphereOverlap(UPrimitiveComponent* OverlappedComponen
 		if (Character)
 		{
 			Character->InteractionData.bShouldTraceForItems = true;
+			Character->HUD->GetInteractionWidget()->SetVisibility(ESlateVisibility::Visible);
+		
 			//UE_LOG(LogTemp, Warning, TEXT("Applying Shader mat"));
 		}
 	}
@@ -65,6 +76,7 @@ void AInteractableActor::OnSphereEndOverlap(UPrimitiveComponent* OverlappedCompo
 		if (Character)
 		{
 			Character->InteractionData.bShouldTraceForItems = false;
+			Character->HUD->GetInteractionWidget()->SetVisibility(ESlateVisibility::Collapsed);
 			//UE_LOG(LogTemp, Warning, TEXT("Removing Shader mat"));
 		}
 	}
@@ -72,25 +84,69 @@ void AInteractableActor::OnSphereEndOverlap(UPrimitiveComponent* OverlappedCompo
 
 void AInteractableActor::BeginFocus()
 {
+	
 	if (ItemMesh)
 	{
-		ItemMesh->SetRenderCustomDepth(true);
+		switch (InstaceInteractableData.InteractableType)
+		{
+		case EInteractableType::Pickup:
+			ItemMesh->SetRenderCustomDepth(true);
+			ItemSkeleton->SetRenderCustomDepth(true);
+			break;
+		case EInteractableType::Weapon:
+			ItemSkeleton->SetRenderCustomDepth(true);
+			break;
+		case EInteractableType::NonPlayableCharacter:
+			break;
+		case EInteractableType::Device:
+			break;
+		case EInteractableType::Toggle:
+			break;
+		case EInteractableType::Container:
+			break;
+		default:
+			break;
+		}
+		
 	}
+	
 }
 
 void AInteractableActor::EndFocus()
 {
+	
 	if (ItemMesh)
 	{
-		ItemMesh->SetRenderCustomDepth(false);
+		switch (InstaceInteractableData.InteractableType)
+		{
+		case EInteractableType::Pickup :
+			ItemMesh->SetRenderCustomDepth(false);
+			ItemSkeleton->SetRenderCustomDepth(false);
+			break;
+		case EInteractableType::Weapon:
+			ItemSkeleton->SetRenderCustomDepth(false);
+			break;
+		case EInteractableType::NonPlayableCharacter:
+			break;
+		case EInteractableType::Device:
+			break;
+		case EInteractableType::Toggle:
+			break;
+		case EInteractableType::Container:
+			break;
+		default:
+			break;
+		}
+
 	}
+	
 }
 
 void AInteractableActor::BeginInteract()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Calling begin interact Override on interface test actor"));
+	//UE_LOG(LogTemp, Warning, TEXT("Calling begin interact Override on interface test actor"));
 
-	//
+	
 }
 
 void AInteractableActor::EndInteract()
@@ -104,9 +160,9 @@ void AInteractableActor::Interact(AMallProjectCharacter* CharacterReference)
 
 	if (CharacterReference)
 	{
-		FString textString = "Interaction Succesful"; 
-		GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, textString, 1);
-		Destroy();
+		//FString textString = "Interaction Succesful"; 
+		//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, textString, 1);
+		//Destroy();
 	}
 }
 

@@ -13,10 +13,13 @@
 #include "Components/SpotLightComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Engine/SkeletalMeshSocket.h"
+#include "Components/SphereComponent.h"
+
 
 //Custome Includes
 #include "MallProject/UserInterface/MallHud.h"
-
+#include "MallProject/Interactables/WeaponInteractableActor.h"
 
 //////////////////////////////////////////////////////////////////////////
 // AMallProjectCharacter
@@ -34,12 +37,15 @@ AMallProjectCharacter::AMallProjectCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->TargetArmLength = 0.0f;
 	CameraBoom->SetupAttachment(GetCapsuleComponent());
+	CameraBoom->bEnableCameraRotationLag = true;
+	CameraBoom->CameraRotationLagSpeed = 10.0f;
+	CameraBoom->bUsePawnControlRotation = true;
 
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(CameraBoom);
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
-	FirstPersonCameraComponent->bUsePawnControlRotation = true;
+	//FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
 	//FirstPersonCameraComponent->bConstrainAspectRatio = true;
 	//FirstPersonCameraComponent->AspectRatio = 1.333333f;
@@ -126,6 +132,9 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		//Run 
 		EnhancedInputComponent->BindAction(JogAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::StartJogging);
 		EnhancedInputComponent->BindAction(JogAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::EndJogging);
+
+		//Fire
+		//EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::FireWeapon);
 	}
 }
 
@@ -224,6 +233,8 @@ void AMallProjectCharacter::EndJogging()
 	bIsJogging = false;
 }
 
+
+
 bool AMallProjectCharacter::PerformTrace(FHitResult& OutHitResult)
 {
 	FVector2D VierportSize;
@@ -267,12 +278,15 @@ void AMallProjectCharacter::TraceForItems()
 		PerformTrace(ItemTraceresult);
 		if (ItemTraceresult.bBlockingHit)
 		{
+
 			//InteractionData.CurrentIntertactable = Cast<AActor>(ItemTraceresult.GetActor());
 			//FoundInteractable(InteractionData.CurrentIntertactable);
 
 			//if the class implements the interact interface check item
 			if (ItemTraceresult.GetActor()->GetClass()->ImplementsInterface(UInteractInterface::StaticClass()))
 			{
+				//HUD->ShowInteractionWidget();
+				
 				//If they are not the same we found new Interactable
 				if (ItemTraceresult.GetActor() != InteractionData.CurrentIntertactable)
 				{
@@ -286,9 +300,11 @@ void AMallProjectCharacter::TraceForItems()
 					return;
 				}
 			}
+			//HUD->HideInteractionWidget();
 		}
 	}
 
+	//HUD->HideInteractionWidget();
 	NoInteractableFound();
 }
 
@@ -297,7 +313,7 @@ void AMallProjectCharacter::FoundInteractable(AActor* NewInteractable)
 	if (InteractionData.bIsInteracting == true)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("InteractionData.bIsInteracting == true"));
-
+		//HUD->HideInteractionWidget();
 		EndInteract();
 	}
 
@@ -305,6 +321,7 @@ void AMallProjectCharacter::FoundInteractable(AActor* NewInteractable)
 	{
 		TargetInteractable = InteractionData.CurrentIntertactable;
 		TargetInteractable->EndFocus();
+		HUD->HideInteractionWidget();
 	}
 
 	InteractionData.CurrentIntertactable = NewInteractable;
@@ -315,10 +332,13 @@ void AMallProjectCharacter::FoundInteractable(AActor* NewInteractable)
 	//HUD->UpdateInteractionWidget(&TargetInteractable->InteractableData);
 
 	TargetInteractable->BeginFocus(); //What happend after beggins focus? Where are we getting redirected ?
+	HUD->ShowInteractionWidget();
 }
 
 void AMallProjectCharacter::NoInteractableFound()
 {
+	//HUD->HideInteractionWidget();
+
 	if (InteractionData.bIsInteracting == true)
 	{
 		InteractionData.bIsInteracting = false;
@@ -329,12 +349,12 @@ void AMallProjectCharacter::NoInteractableFound()
 		if (IsValid(TargetInteractable.GetObject()))
 		{
 			TargetInteractable->EndFocus();
+			HUD->HideInteractionWidget();
 		}
-
-		//HUD->HideInteractionWidget();
 
 		InteractionData.CurrentIntertactable = nullptr;
 		TargetInteractable = nullptr;
+		HUD->HideInteractionWidget();
 	}
 }
 
@@ -349,7 +369,9 @@ void AMallProjectCharacter::BeginInteract()
 
 		if (IsValid(TargetInteractable.GetObject()))
 		{
-			TargetInteractable->BeginInteract();
+			TargetInteractable->BeginFocus(); //?
+			HUD->ShowInteractionWidget();
+			
 
 			if (FMath::IsNearlyZero(TargetInteractable->InteractableData.InteractionDuration, 0.1f))
 			{
@@ -357,13 +379,15 @@ void AMallProjectCharacter::BeginInteract()
 			}
 			else
 			{
-				GetWorldTimerManager().SetTimer(TimerHandle_Interaction,
-					this,
-					&AMallProjectCharacter::Interact,
-					TargetInteractable->InteractableData.InteractionDuration,
-					false);
+				//GetWorldTimerManager().SetTimer(TimerHandle_Interaction,
+				//	this,
+					//&AMallProjectCharacter::Interact,
+					//TargetInteractable->InteractableData.InteractionDuration,
+					//false);
 			}
 		}
+
+		HUD->HideInteractionWidget();
 	}
 }
 
@@ -373,6 +397,7 @@ void AMallProjectCharacter::EndInteract()
 	GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, Banana, 1);
 
 	InteractionData.bIsInteracting = false;
+	
 
 	if (IsValid(TargetInteractable.GetObject()))
 	{
@@ -387,11 +412,37 @@ void AMallProjectCharacter::Interact()
 	if (IsValid(TargetInteractable.GetObject()))
 	{
 		TargetInteractable->Interact(this);
+		if (TargetInteractable->InteractableData.InteractableType == EInteractableType::Weapon)
+		{
+			EquippedWeapon = Cast<AWeaponInteractableActor>(TargetInteractable.GetObject());
+			EquipWeapon(EquippedWeapon);
+			HUD->HideInteractionWidget();
+		}
 	}
 }
 
 
+void AMallProjectCharacter::EquipWeapon(AWeaponInteractableActor* WeaponToEquip)
+{
 
+	//Create USkeletal Socket to attach the weapon
+	const USkeletalMeshSocket* RHandSocket = GetMesh1P()->GetSocketByName(FName("GunRightHandSocket"));
+	if (RHandSocket)
+	{
+		FString Banana = TEXT("End Interact");
+		GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, Banana, 1);
+
+		RHandSocket->AttachActor(WeaponToEquip, GetMesh1P());
+
+		WeaponToEquip ->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		WeaponToEquip ->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+
+		//EquippedWeapon = Weapon;
+	}
+
+	//DefaultWeapon = Something in parenthesis 
+}
 
 
 

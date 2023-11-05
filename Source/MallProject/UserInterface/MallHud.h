@@ -31,9 +31,10 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<class UBlurEffectWidget> BlurWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<class UInteractWidget> InteractWidgetClass;
 
-	//UPROPERTY(EditDefaultsOnly, Category = "Widgets")
-	//TSubclassOf<class UInteractionWidget> InteractionWidgetClass;
+
 
 	//==================================================================//
 	// Functions	
@@ -49,6 +50,8 @@ public:
 	void ShowInteractionWidget() const;
 	void HideInteractionWidget() const;
 
+	FORCEINLINE UInteractWidget* GetInteractionWidget() const { return InteractionWidget; }
+
 protected:
 
 	//==================================================================//
@@ -61,8 +64,8 @@ protected:
 	UPROPERTY()
 	UBlurEffectWidget* BlurWidget;
 
-	//UPROPERTY()
-	//UInteractionWidget* InteractionWidget;
+	UPROPERTY(meta = (AllowPrivateAccess="true"))
+	UInteractWidget* InteractionWidget;
 
 	//==================================================================//
 	// Functions	

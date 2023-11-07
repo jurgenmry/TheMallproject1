@@ -60,7 +60,6 @@ void UTMPAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		}
 
 		//For the Runing
-
 		if (Character ->bIsJogging)
 		{
 			bWantsToRun = true;
@@ -70,5 +69,35 @@ void UTMPAnimInstance::UpdateAnimationProperties(float DeltaTime)
 			bWantsToRun = false;
 		}
 		
+		if (Character ->bHasWeapon)
+		{
+			bHasAnyweapon = true;
+
+			//For the first gun
+			if (Character->bHasWeapon1)
+			{
+				bHasWeapon1 = true;
+			}
+			else
+			{
+				bHasWeapon1 = false;
+			}
+
+			//For the second gun
+
+			if (Character->bHasRifle)
+			{
+				bHasWeapon2 = true;
+			}
+			else
+			{
+				bHasWeapon2 = false;
+			}
+
+		}
+
+
 	}
+
+
 }

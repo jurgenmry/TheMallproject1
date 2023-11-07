@@ -42,7 +42,7 @@ void UWeaponComponent::AttachWeapon(AMallProjectCharacter* TargetCharacter)
 
 
 	// switch bHasRifle so the animation blueprint can switch to another animation set
-	TargetCharacter->SetHasRifle(true);
+	TargetCharacter->SetHasRifle();
 
 	// Set up action bindings
 	if (APlayerController* PlayerController = Cast<APlayerController>(TargetCharacter->GetController()))

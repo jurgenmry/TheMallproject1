@@ -15,6 +15,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/SphereComponent.h"
+#include "Sound/SoundCue.h"
+#include "Particles/ParticleSystem.h"
 
 
 //Custome Includes
@@ -26,8 +28,14 @@
 
 AMallProjectCharacter::AMallProjectCharacter()
 {
+	//Overall Weapon Set up
+	bHasWeapon = false;
+
 	// Character doesnt have a rifle at start
 	bHasRifle = false;
+
+	//Character does not start with any weapon
+	bHasWeapon1 = false;
 	
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
@@ -100,6 +108,33 @@ void AMallProjectCharacter::Tick(float DeltaSeconds)
 
 //////////////////////////////////////////////////////////////////////////// Input
 
+void AMallProjectCharacter::FireWeapon()
+{
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySound2D(this, FireSound);
+	}
+
+	//So far will not work because the socket should be in the weapon not in the character.
+	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("BarrelSocket"));
+
+	if (BarrelSocket)
+	{
+		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+		if (WeaponMuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WeaponMuzzleFlash, SocketTransform);
+		}
+	}
+
+	UAnimInstance* AnimIntance = GetMesh1P()->GetAnimInstance();
+	if (AnimIntance && HipFire)
+	{
+		AnimIntance->Montage_Play(HipFire);
+		AnimIntance->Montage_JumpToSection(FName ("Fire"));
+	}
+}
+
 void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// Set up action bindings
@@ -134,7 +169,14 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		EnhancedInputComponent->BindAction(JogAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::EndJogging);
 
 		//Fire
-		//EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::FireWeapon);
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::FireWeapon);
+
+		//adding weapon1
+		EnhancedInputComponent->BindAction(ChooseWeapon1Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::SetHasWeapon1);
+
+		//adding weapon1
+		EnhancedInputComponent->BindAction(ChooseWeapon2Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::SetHasRifle);
+
 	}
 }
 
@@ -165,14 +207,53 @@ void AMallProjectCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void AMallProjectCharacter::SetHasRifle(bool bNewHasRifle)
+void AMallProjectCharacter::SetHasRifle()
 {
-	bHasRifle = bNewHasRifle;
+	if (CurrentWeapon)
+	{
+		if (!bHasRifle)
+		{
+			//Play Animation Montage
+			bHasRifle = true;
+		}
+
+		else if (bHasWeapon1)
+		{
+			//Play Animation Montage
+			bHasRifle = false;
+		}
+	}
+}
+
+void AMallProjectCharacter::SetHasWeapon1()
+{
+	if (CurrentWeapon && CurrentWeapon ->WeaponType == EWeaponType::Pistol)
+	{
+		if (!bHasWeapon1)
+		{
+			//Play Animation Montage
+			CurrentWeapon->GetItemSkeleton()->SetVisibility(true);
+			bHasWeapon1 = true;
+		}
+
+		else if (bHasWeapon1)
+		{
+			//Play Animation Montage
+			CurrentWeapon->GetItemSkeleton()->SetVisibility(false);
+			bHasWeapon1 = false;
+		}
+	}
 }
 
 bool AMallProjectCharacter::GetHasRifle()
 {
 	return bHasRifle;
+}
+
+
+bool AMallProjectCharacter::GetHasWeapon1()
+{
+	return false;
 }
 
 
@@ -412,11 +493,15 @@ void AMallProjectCharacter::Interact()
 	if (IsValid(TargetInteractable.GetObject()))
 	{
 		TargetInteractable->Interact(this);
+
+
+		//I think this part of code should go when begin interact
 		if (TargetInteractable->InteractableData.InteractableType == EInteractableType::Weapon)
 		{
 			EquippedWeapon = Cast<AWeaponInteractableActor>(TargetInteractable.GetObject());
 			EquipWeapon(EquippedWeapon);
 			HUD->HideInteractionWidget();
+			EquippedWeapon->BeginInteract();
 		}
 	}
 }
@@ -438,10 +523,76 @@ void AMallProjectCharacter::EquipWeapon(AWeaponInteractableActor* WeaponToEquip)
 		WeaponToEquip ->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 		WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 
-		//EquippedWeapon = Weapon;
+		bHasWeapon = true;
+
+
+		CurrentWeapon = WeaponToEquip;
 	}
 
 	//DefaultWeapon = Something in parenthesis 
+}
+
+
+//Based on the type of weapon, attach the weapon to the corresponding socket
+void AMallProjectCharacter::UnequipWeapon(AWeaponInteractableActor* WeaponToEquip)
+{
+
+	
+
+	/*
+	* 
+	* ////// This was supposed to be code to attach to different sockets . but took other aproach
+	* ////// of hidding the weapon mesh.
+	* 
+	* 
+	//Create USkeletal Socket to attach the weapon
+	const USkeletalMeshSocket* HipLeftSocket = GetMesh1P()->GetSocketByName(FName("HipLSocket"));
+	const USkeletalMeshSocket* ClaviculeSocket = GetMesh1P()->GetSocketByName(FName("RifleSocket")); 
+	const USkeletalMeshSocket* HipleftSocket = GetMesh1P()->GetSocketByName(FName("HipLSocket")); 
+
+	if (HipLeftSocket)
+	{
+		if (WeaponToEquip->WeaponType == EWeaponType::Pistol)
+		{
+			//FString Banana = TEXT("End Interact");
+			//GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, Banana, 1);
+
+			HipLeftSocket->AttachActor(WeaponToEquip, GetMesh1P());
+
+			WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		}
+
+		CurrentWeapon = WeaponToEquip;
+	}
+
+	if (ClaviculeSocket)
+	{
+		if (WeaponToEquip->WeaponType == EWeaponType::Rifle)
+		{
+			ClaviculeSocket->AttachActor(WeaponToEquip, GetMesh1P());
+
+			WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		}
+	}
+
+	if (HipleftSocket)
+	{
+		if (WeaponToEquip->WeaponType == EWeaponType::SuperLamp)
+		{
+			HipleftSocket->AttachActor(WeaponToEquip, GetMesh1P());
+
+			WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		}
+
+	}
+	*/
+
 }
 
 

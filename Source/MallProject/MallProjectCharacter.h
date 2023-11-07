@@ -62,13 +62,23 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
 	bool bHasRifle;
 
+	/* to set up the weapon of the character on overlap */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
+	bool bHasWeapon;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool bIsJogging;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
+	bool bHasWeapon1;
 
 	FInteractionData InteractionData;
 
 	UPROPERTY()
 	class AMallHud* HUD;
+
+	
+
 
 	//=======================
 	//Components
@@ -124,6 +134,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* JogAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ChooseWeapon1Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ChooseWeapon2Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* FireAction;
 
 
 	//================================================================================//
@@ -144,14 +162,23 @@ public:
 	/******************* Setters *******************/
 	/***********************************************/
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	void SetHasRifle(bool bNewHasRifle);
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void SetHasRifle();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	void SetHasWeapon1();
 
 	/******************* Getters *******************/
 	/***********************************************/
 
 	UFUNCTION(BlueprintCallable, Category = Weapon)
 	bool GetHasRifle();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	bool GetHasWeapon1();
+
+	UFUNCTION()
+	FORCEINLINE bool GetHasWeapon() const { return bHasWeapon; }
 
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 
@@ -160,6 +187,30 @@ public:
 	USpotLightComponent* GetSpolight() const { return FlashLight; }
 
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+
+
+private:
+
+	//================================================================================//
+	// Variables & Properties
+	//================================================================================//
+
+	//SoundEffect based on firing weapon;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess ="true"))
+	class USoundCue* FireSound;
+
+	//flash spawned at the barrel socket of weapon
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* WeaponMuzzleFlash;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* HipFire;
+
+	//================================================================================//
+	// FUNCTIONS
+	//================================================================================//
+
+	void FireWeapon();
 
 protected:
 	
@@ -174,9 +225,10 @@ protected:
 	//UPROPERTY()
 	//EquippedWeapond
 	class AWeaponInteractableActor* EquippedWeapon;
+	
+	AWeaponInteractableActor* CurrentWeapon;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, meta =(AllowPrivateAccess = "true"))
-	TSubclassOf<AWeaponInteractableActor> DefaultWeaponClass;
+
 
 	//================================================================================//
 	// FUNCTIONS
@@ -192,7 +244,11 @@ protected:
 	void StartJogging();
 	void EndJogging();
 
+	//Placing the weapon on character hand
 	void EquipWeapon(class AWeaponInteractableActor* WeaponToEquip);//Something in parenthesis);
+
+	// For placing the weapon on the character body
+	void UnequipWeapon(class AWeaponInteractableActor* WeaponToEquip); 
 
 public:
 

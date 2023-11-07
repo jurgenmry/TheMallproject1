@@ -13,6 +13,7 @@
 AWeaponInteractableActor::AWeaponInteractableActor()
 {
 	WeaponComps = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComps"));
+	WeaponType = EWeaponType::Pistol;
 }
 
 void AWeaponInteractableActor::Interact(AMallProjectCharacter* CharacterReference)
@@ -28,4 +29,31 @@ void AWeaponInteractableActor::Interact(AMallProjectCharacter* CharacterReferenc
 
 
 	//WeaponComps->AttachWeapon(CharacterReference);
+}
+
+void AWeaponInteractableActor::BeginInteract()
+{
+	//Play character animation
+	switch (WeaponType)
+	{
+	case EWeaponType::Pistol:
+		break;
+	case EWeaponType::Rifle:
+		break;
+	case EWeaponType::Shotgun:
+		break;
+	case EWeaponType::Melee:
+		break;
+	case EWeaponType::SuperLamp:
+		break;
+	case EWeaponType::Other:
+		break;
+	default:
+		break;
+	}
+}
+
+void AWeaponInteractableActor::EndInteract()
+{
+	//
 }

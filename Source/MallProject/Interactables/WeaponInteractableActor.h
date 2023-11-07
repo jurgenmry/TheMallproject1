@@ -9,6 +9,17 @@
 /**
  * 
  */
+UENUM()
+enum class EWeaponType : uint8
+{
+	Pistol UMETA(DisplayName = "Pistol"),
+	Rifle UMETA(DisplayName = "Rifle"), //Technically weapon is pickup
+	Shotgun UMETA(DisplayName = "Shotgun"),
+	Melee UMETA(DisplayName = "Melee"), //Windows, doors, etc
+	SuperLamp UMETA(DisplayName = "SuperLamp"), //Buttons, Switch, Leaver, Use to active devices
+	Other UMETA(DisplayName = "Other")
+};
+
 UCLASS()
 class MALLPROJECT_API AWeaponInteractableActor : public AInteractableActor
 {
@@ -23,6 +34,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	class UWeaponComponent* WeaponComps;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	EWeaponType WeaponType;
 
 	//================================================================================//
 	// FUNCTIONS
@@ -31,4 +44,8 @@ public:
 	AWeaponInteractableActor();
 
 	virtual void Interact(class AMallProjectCharacter* CharacterReference) override;
+
+	virtual void BeginInteract() override;
+
+	virtual void EndInteract() override;
 };

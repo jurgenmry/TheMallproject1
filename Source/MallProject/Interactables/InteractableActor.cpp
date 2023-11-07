@@ -91,10 +91,10 @@ void AInteractableActor::BeginFocus()
 		{
 		case EInteractableType::Pickup:
 			ItemMesh->SetRenderCustomDepth(true);
-			ItemSkeleton->SetRenderCustomDepth(true);
+			//ItemSkeleton->SetRenderCustomDepth(true);
 			break;
 		case EInteractableType::Weapon:
-			ItemSkeleton->SetRenderCustomDepth(true);
+			//ItemSkeleton->SetRenderCustomDepth(true);
 			break;
 		case EInteractableType::NonPlayableCharacter:
 			break;
@@ -121,10 +121,10 @@ void AInteractableActor::EndFocus()
 		{
 		case EInteractableType::Pickup :
 			ItemMesh->SetRenderCustomDepth(false);
-			ItemSkeleton->SetRenderCustomDepth(false);
+			//ItemSkeleton->SetRenderCustomDepth(false);
 			break;
 		case EInteractableType::Weapon:
-			ItemSkeleton->SetRenderCustomDepth(false);
+			//ItemSkeleton->SetRenderCustomDepth(false);
 			break;
 		case EInteractableType::NonPlayableCharacter:
 			break;

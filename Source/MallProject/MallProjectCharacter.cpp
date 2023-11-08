@@ -17,7 +17,8 @@
 #include "Components/SphereComponent.h"
 #include "Sound/SoundCue.h"
 #include "Particles/ParticleSystem.h"
-
+#include "DrawDebugHelpers.h"
+#include "Particles/ParticleSystemComponent.h"
 
 //Custome Includes
 #include "MallProject/UserInterface/MallHud.h"
@@ -27,6 +28,7 @@
 // AMallProjectCharacter
 
 AMallProjectCharacter::AMallProjectCharacter()
+	
 {
 	//Overall Weapon Set up
 	bHasWeapon = false;
@@ -47,13 +49,13 @@ AMallProjectCharacter::AMallProjectCharacter()
 	CameraBoom->SetupAttachment(GetCapsuleComponent());
 	CameraBoom->bEnableCameraRotationLag = true;
 	CameraBoom->CameraRotationLagSpeed = 10.0f;
-	CameraBoom->bUsePawnControlRotation = true;
+	CameraBoom->bUsePawnControlRotation = false;
 
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(CameraBoom);
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
-	//FirstPersonCameraComponent->bUsePawnControlRotation = true;
+	FirstPersonCameraComponent->bUsePawnControlRotation = true;
 
 	//FirstPersonCameraComponent->bConstrainAspectRatio = true;
 	//FirstPersonCameraComponent->AspectRatio = 1.333333f;
@@ -71,9 +73,7 @@ AMallProjectCharacter::AMallProjectCharacter()
 	FlashLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashLight"));
 	FlashLight->SetupAttachment(FirstPersonCameraComponent);
 	FlashLight->SetVisibility(true);
-
-
-
+	
 }
 
 void AMallProjectCharacter::BeginPlay()
@@ -98,6 +98,8 @@ void AMallProjectCharacter::BeginPlay()
 		return;
 	}
 
+	//SpawnDefaultWeapon();
+
 }
 
 void AMallProjectCharacter::Tick(float DeltaSeconds)
@@ -108,32 +110,7 @@ void AMallProjectCharacter::Tick(float DeltaSeconds)
 
 //////////////////////////////////////////////////////////////////////////// Input
 
-void AMallProjectCharacter::FireWeapon()
-{
-	if (FireSound)
-	{
-		UGameplayStatics::PlaySound2D(this, FireSound);
-	}
 
-	//So far will not work because the socket should be in the weapon not in the character.
-	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("BarrelSocket"));
-
-	if (BarrelSocket)
-	{
-		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
-		if (WeaponMuzzleFlash)
-		{
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WeaponMuzzleFlash, SocketTransform);
-		}
-	}
-
-	UAnimInstance* AnimIntance = GetMesh1P()->GetAnimInstance();
-	if (AnimIntance && HipFire)
-	{
-		AnimIntance->Montage_Play(HipFire);
-		AnimIntance->Montage_JumpToSection(FName ("Fire"));
-	}
-}
 
 void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -179,7 +156,6 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 	}
 }
-
 
 void AMallProjectCharacter::Move(const FInputActionValue& Value)
 {
@@ -250,7 +226,6 @@ bool AMallProjectCharacter::GetHasRifle()
 	return bHasRifle;
 }
 
-
 bool AMallProjectCharacter::GetHasWeapon1()
 {
 	return false;
@@ -296,7 +271,6 @@ void AMallProjectCharacter::ToggleFlashLight()
 	FlashLight->ToggleVisibility();
 }
 
-
 void AMallProjectCharacter::StartJogging()
 {
 	//FString Sprint = "Is Sprinting";
@@ -315,48 +289,19 @@ void AMallProjectCharacter::EndJogging()
 }
 
 
+///  This code has to do with firing the wapon and do line traces. 
+/// 
 
-bool AMallProjectCharacter::PerformTrace(FHitResult& OutHitResult)
-{
-	FVector2D VierportSize;
 
-	if (GEngine && GEngine->GameViewport)
-	{
-		GEngine->GameViewport->GetViewportSize(VierportSize);
-	}
 
-	//Divides the screen in  half to set crosshairs
-	FVector2D CrossHairWorldLocation{ VierportSize.X / 2.0f, VierportSize.Y / 2.0f };
-	FVector CrossHairWorldDirection;
-	FVector CrossHairWorldPosition;
-
-	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
-		UGameplayStatics::GetPlayerController(this, 0),
-		CrossHairWorldLocation,
-		CrossHairWorldPosition,
-		CrossHairWorldDirection);
-
-	if (bScreenToWorld)
-	{
-		//Trace from center of the Screen outwards
-		const FVector Start{ CrossHairWorldPosition };
-		const FVector End{ Start + CrossHairWorldDirection * 50'000.f };
-		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
-
-		if (OutHitResult.bBlockingHit)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
+// This Trace will allow us to trace for all items that have a interface
 void AMallProjectCharacter::TraceForItems()
 {
 	if (InteractionData.bShouldTraceForItems)
 	{
+		FVector HitLocation; //Maybe this need to be adjusted
 		FHitResult ItemTraceresult;
-		PerformTrace(ItemTraceresult);
+		PerformTrace(ItemTraceresult, HitLocation);
 		if (ItemTraceresult.bBlockingHit)
 		{
 
@@ -388,6 +333,140 @@ void AMallProjectCharacter::TraceForItems()
 	//HUD->HideInteractionWidget();
 	NoInteractableFound();
 }
+
+bool AMallProjectCharacter::PerformTrace(FHitResult& OutHitResult, FVector& OutHitLocation)
+{
+	FVector2D VierportSize;
+
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(VierportSize);
+	}
+
+	//Divides the screen in  half to set crosshairs
+	FVector2D CrossHairWorldLocation{ VierportSize.X / 2.0f, VierportSize.Y / 2.0f };
+	FVector CrossHairWorldDirection;
+	FVector CrossHairWorldPosition;
+
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
+		UGameplayStatics::GetPlayerController(this, 0),
+		CrossHairWorldLocation,
+		CrossHairWorldPosition,
+		CrossHairWorldDirection);
+
+	if (bScreenToWorld)
+	{
+		//Trace from center of the Screen outwards
+		const FVector Start{ CrossHairWorldPosition };
+		const FVector End{ Start + CrossHairWorldDirection * 50'000.f };
+		OutHitLocation = End;
+
+		GetWorld()->LineTraceSingleByChannel(OutHitResult, Start, End, ECollisionChannel::ECC_Visibility);
+
+		if (OutHitResult.bBlockingHit)
+		{
+			OutHitLocation = OutHitResult.Location;
+			return true;
+		}
+	}
+	return false;
+}
+
+void AMallProjectCharacter::FireWeapon()
+{
+	if (FireSound)
+	{
+		UGameplayStatics::PlaySound2D(this, FireSound);
+	}
+
+	//So far will not work because the socket should be in the weapon not in the character.
+	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("BarrelSocket"));
+
+	if (BarrelSocket)
+	{
+		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+		if (WeaponMuzzleFlash)
+		{
+			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WeaponMuzzleFlash, SocketTransform);
+		}
+
+		FVector BeamEnd;
+		bool bBeamEnd = GetBeamEndLocation(SocketTransform.GetLocation(),BeamEnd);
+		
+		if (bBeamEnd)
+		{
+			if (ImpactParticle)
+			{
+				UGameplayStatics::SpawnEmitterAtLocation(
+					GetWorld(),
+					ImpactParticle,
+					BeamEnd);
+			}
+
+			UParticleSystemComponent* Beam = UGameplayStatics::SpawnEmitterAtLocation(
+				GetWorld(),
+				Beanparticles,
+				SocketTransform);
+			if (Beam)
+			{
+				Beam->SetVectorParameter(FName("Target"), BeamEnd);
+			}
+		}
+	}
+	UAnimInstance* AnimIntance = GetMesh1P()->GetAnimInstance();
+	if (AnimIntance && HipFire)
+	{
+		AnimIntance->Montage_Play(HipFire);
+		AnimIntance->Montage_JumpToSection(FName("Fire"));
+	}
+}
+
+bool AMallProjectCharacter::GetBeamEndLocation(
+	const FVector& MuzzleSocketLocation,
+	FVector& OutBeamLocation)
+{
+
+	//Check for croshairTraceHit;
+	FHitResult CrosshairHitResult;
+	bool bCrossHairHit = PerformTrace(CrosshairHitResult, OutBeamLocation);
+
+	if (bCrossHairHit)
+	{
+		// Tentative beam location - Still need to check  from the gun 
+		OutBeamLocation = CrosshairHitResult.Location;
+	}
+	else // No crosshair hit
+	{
+		//OutBeamLocation is the end location for the line trace
+	}
+
+	//Perform a second trace, this time for the gun barrel 
+	FHitResult WeaponTraceHit;
+	const FVector WeaponTraceStart{ MuzzleSocketLocation };
+	const FVector StartToEnd{ OutBeamLocation - MuzzleSocketLocation };
+	const FVector WeaponTraceEnd{ MuzzleSocketLocation + StartToEnd * 1.25f };
+
+	GetWorld()->LineTraceSingleByChannel(
+		WeaponTraceHit,
+		WeaponTraceStart,
+		WeaponTraceEnd,
+		ECollisionChannel::ECC_Visibility);
+
+	if (WeaponTraceHit.bBlockingHit) //Object Bewtween the barrel and the beam end point
+	{
+		OutBeamLocation = WeaponTraceHit.Location;
+		return true;
+	}
+	return false;
+}
+
+
+
+
+/// 
+///  This code has to do with Interactables and all the logic under it  
+///  we will review this description and code in later intance
+/// 
 
 void AMallProjectCharacter::FoundInteractable(AActor* NewInteractable)
 {
@@ -499,46 +578,73 @@ void AMallProjectCharacter::Interact()
 		if (TargetInteractable->InteractableData.InteractableType == EInteractableType::Weapon)
 		{
 			EquippedWeapon = Cast<AWeaponInteractableActor>(TargetInteractable.GetObject());
-			EquipWeapon(EquippedWeapon);
-			HUD->HideInteractionWidget();
-			EquippedWeapon->BeginInteract();
+			if (EquippedWeapon)
+			{
+				EquipWeapon(EquippedWeapon);
+				HUD->HideInteractionWidget();
+				EquippedWeapon->BeginInteract();
+			}
 		}
 	}
 }
 
 
+/// 
+///  This code has to do with  Equip and unequip weapons and all the logic under it  
+///  we will review this description and code in later intance
+/// 
+
+void AMallProjectCharacter::SpawnDefaultWeapon()
+{
+	if (DefaultWeaponClass)
+	{
+		CurrentWeapon = GetWorld()->SpawnActor<AWeaponInteractableActor>(DefaultWeaponClass);
+		const USkeletalMeshSocket* RHandSocket = GetMesh1P()->GetSocketByName(FName("GunRightHandSocket"));
+
+		if (RHandSocket)
+		{
+			RHandSocket->AttachActor(CurrentWeapon, GetMesh1P());
+			CurrentWeapon->SetItemState(EItemState::Equipped);
+		}
+	}
+}
+
 void AMallProjectCharacter::EquipWeapon(AWeaponInteractableActor* WeaponToEquip)
 {
 
-	//Create USkeletal Socket to attach the weapon
-	const USkeletalMeshSocket* RHandSocket = GetMesh1P()->GetSocketByName(FName("GunRightHandSocket"));
-	if (RHandSocket)
+	if(WeaponToEquip)
 	{
-		FString Banana = TEXT("End Interact");
-		GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, Banana, 1);
+		FString AddWeapon = "AddWeapon to Hand";
+		GEngine->AddOnScreenDebugMessage(10, 5.0f, FColor::Red, AddWeapon, 0);
 
-		RHandSocket->AttachActor(WeaponToEquip, GetMesh1P());
+		//WeaponToEquip->SetItemState(EItemState::Equipped);
 
-		WeaponToEquip ->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		WeaponToEquip ->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		//Create USkeletal Socket to attach the weapon
+		const USkeletalMeshSocket* RHandSocket = GetMesh1P()->GetSocketByName(FName("GunRightHandSocket"));
+		if (RHandSocket)
+		{
+			RHandSocket->AttachActor(WeaponToEquip, GetMesh1P());
 
-		bHasWeapon = true;
+			//WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			//WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			//WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			//WeaponToEquip->GetItemSkeleton()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+			WeaponToEquip->SetItemState(EItemState::Equipped);
 
-		CurrentWeapon = WeaponToEquip;
+			bHasWeapon = true;
+			CurrentWeapon = WeaponToEquip;
+
+			
+		}
 	}
 
 	//DefaultWeapon = Something in parenthesis 
 }
 
-
 //Based on the type of weapon, attach the weapon to the corresponding socket
 void AMallProjectCharacter::UnequipWeapon(AWeaponInteractableActor* WeaponToEquip)
 {
-
-	
-
 	/*
 	* 
 	* ////// This was supposed to be code to attach to different sockets . but took other aproach

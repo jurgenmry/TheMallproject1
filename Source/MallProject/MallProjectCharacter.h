@@ -143,6 +143,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	const UInputAction* Menu;
+
 
 	//================================================================================//
 	// FUNCTIONS
@@ -203,6 +206,15 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class UParticleSystem* WeaponMuzzleFlash;
 
+	//Particles on Impact ... this will needed to be changed based on what we hit.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* ImpactParticle;
+
+
+	//Particles from the muzzle of the weapon.. Smoketrail ... this will needed to be changed based on what we hit.
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class UParticleSystem* Beanparticles;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* HipFire;
 
@@ -222,17 +234,34 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Interaction")
 	TScriptInterface<IInteractInterface> TargetInteractable;
 
-	//UPROPERTY()
-	//EquippedWeapond
+	// Currently Equiped Weapon;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,  Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class AWeaponInteractableActor* EquippedWeapon;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AWeaponInteractableActor>DefaultWeaponClass;
+
+	//Current Weapon the character is Holding
 	AWeaponInteractableActor* CurrentWeapon;
 
-
+	
 
 	//================================================================================//
 	// FUNCTIONS
 	//================================================================================//
+
+
+	void SpawnDefaultWeapon();
+
+	//Placing the weapon on character hand
+	void EquipWeapon(class AWeaponInteractableActor* WeaponToEquip);//Something in parenthesis);
+
+	// For placing the weapon on the character body
+	void UnequipWeapon(class AWeaponInteractableActor* WeaponToEquip);
+
+
+	// Beam particles 
+	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
 
 
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
@@ -244,18 +273,13 @@ protected:
 	void StartJogging();
 	void EndJogging();
 
-	//Placing the weapon on character hand
-	void EquipWeapon(class AWeaponInteractableActor* WeaponToEquip);//Something in parenthesis);
-
-	// For placing the weapon on the character body
-	void UnequipWeapon(class AWeaponInteractableActor* WeaponToEquip); 
 
 public:
 
 	//----------- Interaction code --------------/
 
 	//For Tracing Under Crosshairs
-	bool PerformTrace(FHitResult& OutHitResult);
+	bool PerformTrace(FHitResult& OutHitResult, FVector& OutHitLocation);
 
 	//This Works on the overlap Event for items
 	void TraceForItems();
@@ -265,8 +289,6 @@ public:
 
 	FTimerHandle TimerHandle_Interaction;
 
-	//input
-	//void TraceButtonPressed()
 
 	void FoundInteractable(AActor* NewInteractable);
 	void NoInteractableFound();
@@ -276,6 +298,6 @@ public:
 
 	void Pause();
 
-	const UInputAction* Menu;
+	
 };
 

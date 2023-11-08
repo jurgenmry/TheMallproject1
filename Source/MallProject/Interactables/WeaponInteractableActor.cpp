@@ -14,6 +14,8 @@ AWeaponInteractableActor::AWeaponInteractableActor()
 {
 	WeaponComps = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComps"));
 	WeaponType = EWeaponType::Pistol;
+	
+	//ItemState = EItemState::ReadyForPickup;
 }
 
 void AWeaponInteractableActor::Interact(AMallProjectCharacter* CharacterReference)

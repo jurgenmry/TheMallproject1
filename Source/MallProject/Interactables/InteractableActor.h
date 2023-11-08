@@ -9,6 +9,16 @@
 
 
 
+UENUM()
+enum class EItemState : uint8
+{
+	ReadyForPickup UMETA(DisplayName = "Ready_Pickup"),
+	EquipInterping UMETA(DisplayName = "EquipInterping"),
+	PickedUp UMETA(DisplayName = "PickedUp"),
+	Equipped UMETA(DisplayName = "Equipped"),
+	NoState UMETA(DisplayName = "NoState") // This is for doors and others
+};
+
 UCLASS()
 class MALLPROJECT_API AInteractableActor : public AActor, public IInteractInterface
 {
@@ -35,6 +45,10 @@ public:
 	UPROPERTY(EditInstanceOnly, Category = "Components")
 	FInteractableData InstaceInteractableData;
 
+	UPROPERTY(EditAnywhere,Category = "Components")
+	EItemState ItemState;
+
+	
 
 	//================================================================================//
 	// FUNCTIONS
@@ -54,11 +68,20 @@ public:
 
 	virtual void Interact(class AMallProjectCharacter* CharacterReference) override;
 
+	void SetItemState(EItemState State);
+
+	/* Sets the itme properties */
+	void SetItemProperties(EItemState State);
+
 	//Getters
 
 	FORCEINLINE USkeletalMeshComponent* GetItemSkeleton() const { return ItemSkeleton; }
 	FORCEINLINE UBoxComponent* GetBoxComponent() const { return BoxComps; }
 	FORCEINLINE USphereComponent* GetSphereComponent() const { return SphereComps;  }
+	FORCEINLINE EItemState GetItemState() const { return ItemState; }
+
+	//Setters
+
 
 protected:
 	

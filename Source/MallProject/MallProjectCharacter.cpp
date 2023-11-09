@@ -28,7 +28,8 @@
 // AMallProjectCharacter
 
 AMallProjectCharacter::AMallProjectCharacter()
-	
+	: Starting9mmAmmo(50)
+	, Starting_AR_Ammo(120)
 {
 	//Overall Weapon Set up
 	bHasWeapon = false;
@@ -100,6 +101,9 @@ void AMallProjectCharacter::BeginPlay()
 
 	//SpawnDefaultWeapon();
 
+	//Initialized the value of the ammo;
+	InitializedAmmoMap(); 
+
 }
 
 void AMallProjectCharacter::Tick(float DeltaSeconds)
@@ -109,8 +113,6 @@ void AMallProjectCharacter::Tick(float DeltaSeconds)
 }
 
 //////////////////////////////////////////////////////////////////////////// Input
-
-
 
 void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -193,7 +195,7 @@ void AMallProjectCharacter::SetHasRifle()
 			bHasRifle = true;
 		}
 
-		else if (bHasWeapon1)
+		else if (bHasRifle)
 		{
 			//Play Animation Montage
 			bHasRifle = false;
@@ -210,6 +212,7 @@ void AMallProjectCharacter::SetHasWeapon1()
 			//Play Animation Montage
 			CurrentWeapon->GetItemSkeleton()->SetVisibility(true);
 			bHasWeapon1 = true;
+			
 		}
 
 		else if (bHasWeapon1)
@@ -217,6 +220,7 @@ void AMallProjectCharacter::SetHasWeapon1()
 			//Play Animation Montage
 			CurrentWeapon->GetItemSkeleton()->SetVisibility(false);
 			bHasWeapon1 = false;
+			
 		}
 	}
 }
@@ -291,7 +295,6 @@ void AMallProjectCharacter::EndJogging()
 
 ///  This code has to do with firing the wapon and do line traces. 
 /// 
-
 
 
 // This Trace will allow us to trace for all items that have a interface
@@ -524,8 +527,8 @@ void AMallProjectCharacter::BeginInteract()
 
 	if (InteractionData.CurrentIntertactable)
 	{
-		FString Banana = TEXT("Begin Interact");
-		GEngine->AddOnScreenDebugMessage(5, 5.0f, FColor::Red, Banana, 1);
+		//FString Banana = TEXT("Begin Interact");
+		//GEngine->AddOnScreenDebugMessage(5, 5.0f, FColor::Red, Banana, 1);
 
 		if (IsValid(TargetInteractable.GetObject()))
 		{
@@ -571,19 +574,31 @@ void AMallProjectCharacter::Interact()
 
 	if (IsValid(TargetInteractable.GetObject()))
 	{
-		TargetInteractable->Interact(this);
-
-
+		
 		//I think this part of code should go when begin interact
 		if (TargetInteractable->InteractableData.InteractableType == EInteractableType::Weapon)
 		{
 			EquippedWeapon = Cast<AWeaponInteractableActor>(TargetInteractable.GetObject());
+			
 			if (EquippedWeapon)
 			{
 				EquipWeapon(EquippedWeapon);
 				HUD->HideInteractionWidget();
 				EquippedWeapon->BeginInteract();
 			}
+			else
+			{
+				AWeaponInteractableActor* Weapon = NewObject<AWeaponInteractableActor>(TargetInteractable.GetObject());//<AWeaponInteractableActor*>(TargetInteractable);
+				HUD->HideInteractionWidget();
+				Weapon->BeginInteract();
+				EquippedWeapon->SetActorEnableCollision(false);
+				EquippedWeapon->GetItemSkeleton()->SetVisibility(false);
+			}
+		}
+
+		else
+		{
+			TargetInteractable->Interact(this); // Here we should handle the special information for actors
 		}
 	}
 }
@@ -593,6 +608,7 @@ void AMallProjectCharacter::Interact()
 ///  This code has to do with  Equip and unequip weapons and all the logic under it  
 ///  we will review this description and code in later intance
 /// 
+
 
 void AMallProjectCharacter::SpawnDefaultWeapon()
 {
@@ -609,15 +625,26 @@ void AMallProjectCharacter::SpawnDefaultWeapon()
 	}
 }
 
+void AMallProjectCharacter::CharacterHasWeapon() //Need to check when to call
+{
+	if (bHasWeapon)
+	{
+		HUD->SetOverlayDisplay(true);
+	}
+}
+
 void AMallProjectCharacter::EquipWeapon(AWeaponInteractableActor* WeaponToEquip)
 {
-
 	if(WeaponToEquip)
 	{
-		FString AddWeapon = "AddWeapon to Hand";
-		GEngine->AddOnScreenDebugMessage(10, 5.0f, FColor::Red, AddWeapon, 0);
+		
 
 		//WeaponToEquip->SetItemState(EItemState::Equipped);
+
+		//WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		//WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		//WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		
 
 		//Create USkeletal Socket to attach the weapon
 		const USkeletalMeshSocket* RHandSocket = GetMesh1P()->GetSocketByName(FName("GunRightHandSocket"));
@@ -625,24 +652,33 @@ void AMallProjectCharacter::EquipWeapon(AWeaponInteractableActor* WeaponToEquip)
 		{
 			RHandSocket->AttachActor(WeaponToEquip, GetMesh1P());
 
+			//WeaponToEquip->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::KeepRelativeTransform, FName("GunRightHandSocket"));
+
+			FString AddWeapon = "AddWeapon to Hand";
+			GEngine->AddOnScreenDebugMessage(10, 5.0f, FColor::Red, AddWeapon, 0);
+
 			//WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			//WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			//WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			//WeaponToEquip->GetItemSkeleton()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-			WeaponToEquip->SetItemState(EItemState::Equipped);
 
 			bHasWeapon = true;
 			CurrentWeapon = WeaponToEquip;
-
+			CurrentWeapon->SetItemState(EItemState::Equipped);
+			CharacterHasWeapon();
 			
+			//WeaponToEquip = CurrentWeapon;
+
 		}
 	}
 
 	//DefaultWeapon = Something in parenthesis 
 }
 
+
 //Based on the type of weapon, attach the weapon to the corresponding socket
+//This needs to be checked
 void AMallProjectCharacter::UnequipWeapon(AWeaponInteractableActor* WeaponToEquip)
 {
 	/*
@@ -701,7 +737,13 @@ void AMallProjectCharacter::UnequipWeapon(AWeaponInteractableActor* WeaponToEqui
 
 }
 
+/// 
+///  This code has to do with  Weapons Ammo
+///  we will review this description and code in later intance
+///
 
-
-
-
+void AMallProjectCharacter::InitializedAmmoMap()
+{
+	AmmoMap.Add(EAmmoType::E9_mm, Starting9mmAmmo);
+	AmmoMap.Add(EAmmoType::AR, Starting_AR_Ammo);
+}

@@ -10,6 +10,7 @@
 #include "MallProject/UserInterface/BlurEffectWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "MallProject/UserInterface/InteractWidget.h"
+#include "MallProject/UserInterface/WeaponAndCrossHairDisplay.h"
 
 AMallHud::AMallHud()
 {
@@ -34,6 +35,13 @@ void AMallHud::BeginPlay()
 	if (!ensure(InteractWidgetClass != NULL)) return;
 	InteractionWidget->AddToViewport();
 	InteractionWidget->SetVisibility(ESlateVisibility::Visible);
+
+
+	HudOverlayWidget = CreateWidget<UWeaponAndCrossHairDisplay>(GetWorld(), OverlayHudClass);
+	if (!ensure(OverlayHudClass != NULL)) return;
+	HudOverlayWidget->AddToViewport();
+	HudOverlayWidget->SetVisibility(ESlateVisibility::Collapsed);
+
 }
 
 
@@ -57,6 +65,7 @@ void AMallHud::HideMenu()
 	{
 		bIsMenuVisible = false;
 		MainMenuWidget->SetVisibility(ESlateVisibility::Collapsed);
+	
 	}
 }
 
@@ -70,6 +79,7 @@ void AMallHud::ToggleMenu()
 		GetOwningPlayerController()->bShowMouseCursor = false;
 		bGamePause = false;
 		UGameplayStatics::SetGamePaused(GetWorld(),false);
+		
 		//FInputActionBinding& toggle = InputComponent->BindAction("Pause", IE_Pressed, this, &AMallProjectCharacter::Pause);
 		//toggle.bExecuteWhenPaused = true;
 	}
@@ -81,8 +91,21 @@ void AMallHud::ToggleMenu()
 		GetOwningPlayerController()->bShowMouseCursor = true;
 		bGamePause = false;
 		UGameplayStatics::SetGamePaused(GetWorld(), true);
+		
 	}
 	
+}
+
+void AMallHud::ToggleOverlayWidget()
+{
+	if (OverlayDisplay)
+	{
+		HudOverlayWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		HudOverlayWidget->SetVisibility(ESlateVisibility::Collapsed);
+	}
 }
 
 void AMallHud::ShowInteractionWidget() const

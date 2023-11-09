@@ -36,6 +36,15 @@ struct FInteractionData
 	bool bIsInteracting;
 };
 
+UENUM(BlueprintType)
+enum class EAmmoType : uint8
+{
+	E9_mm UMETA(DisplayName = "9mm"),
+	AR UMETA(DisplayName = "Assault Rifle"),
+	Shootgun UMETA(DisplayName = "Shotgun"),
+	LightBatteries UMETA(DisplayName = "Bateries"),
+	Other UMETA(DisplayName = "Other Ammo") // This is for doors and others
+};
 
 
 class UInputComponent;
@@ -76,8 +85,6 @@ public:
 
 	UPROPERTY()
 	class AMallHud* HUD;
-
-	
 
 
 	//=======================
@@ -218,6 +225,17 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* HipFire;
 
+	//Map to Keep Track of ammo of different weapons
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	TMap<EAmmoType, int32> AmmoMap;
+
+	/* Starting amount bullets Pistol */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	int32 Starting9mmAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	int32 Starting_AR_Ammo;
+
 	//================================================================================//
 	// FUNCTIONS
 	//================================================================================//
@@ -244,19 +262,25 @@ protected:
 	//Current Weapon the character is Holding
 	AWeaponInteractableActor* CurrentWeapon;
 
-	
 
 	//================================================================================//
 	// FUNCTIONS
 	//================================================================================//
 
 
-	void SpawnDefaultWeapon();
+	/* Initiliaze ammo map  with ammo values*/
+	void InitializedAmmoMap();
+
+	void SpawnDefaultWeapon(); // We will start without default weapon
+	
+	void CharacterHasWeapon();
 
 	//Placing the weapon on character hand
+	UFUNCTION()
 	void EquipWeapon(class AWeaponInteractableActor* WeaponToEquip);//Something in parenthesis);
 
 	// For placing the weapon on the character body
+	
 	void UnequipWeapon(class AWeaponInteractableActor* WeaponToEquip);
 
 

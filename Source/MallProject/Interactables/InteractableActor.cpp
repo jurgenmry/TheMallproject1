@@ -21,22 +21,27 @@ AInteractableActor::AInteractableActor()
 
 	PrimaryActorTick.bCanEverTick = false;
 
+	ItemSkeleton = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemSkeleton"));
+	ItemSkeleton->SetupAttachment(GetRootComponent());
+	ItemSkeleton->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	SetRootComponent(ItemSkeleton);
+
 	BoxComps = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComps"));
 	//BoxComps->SetupAttachment(GetRootComponent());
-	SetRootComponent(BoxComps);
-	BoxComps->SetHiddenInGame(true);
+	BoxComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	BoxComps->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+	BoxComps->SetupAttachment(GetRootComponent());
+	
+	//BoxComps->SetHiddenInGame(true);
 
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMesh"));
-	ItemMesh->SetupAttachment(BoxComps);
-	ItemMesh->SetSimulatePhysics(true);
+	ItemMesh->SetupAttachment(GetRootComponent());
+	
 
 	SphereComps = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComps"));
 	SphereComps->SetSphereRadius(70.0f);
 	SphereComps->SetupAttachment(GetRootComponent());
 
-	ItemSkeleton = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemSkeleton"));
-	ItemSkeleton->SetupAttachment(GetRootComponent());
-	//ItemSkeleton->SetSimulatePhysics(true);
 	InstaceInteractableData.InteractableType = EInteractableType::Pickup;
 }
 
@@ -51,10 +56,7 @@ void AInteractableActor::BeginPlay()
 	SphereComps->OnComponentEndOverlap.AddDynamic(this, &AInteractableActor::OnSphereEndOverlap);
 
 	//Set Item Properties based on itemState;
-	if (InstaceInteractableData.InteractableType == EInteractableType::Pickup || InstaceInteractableData.InteractableType == EInteractableType::Weapon)
-	{
-		SetItemProperties(ItemState);
-	}
+	
 }
 
 
@@ -66,11 +68,14 @@ void AInteractableActor::OnSphereOverlap(UPrimitiveComponent* OverlappedComponen
 		AMallProjectCharacter* Character = Cast<AMallProjectCharacter>(OtherActor);
 		if (Character)
 		{
+			if (InstaceInteractableData.InteractableType == EInteractableType::Pickup || InstaceInteractableData.InteractableType == EInteractableType::Weapon)
+			{
+				ItemState = EItemState::Ready_For_Pickup;
+				SetItemState(ItemState);
+			}
+
 			Character->InteractionData.bShouldTraceForItems = true;
 			Character->HUD->GetInteractionWidget()->SetVisibility(ESlateVisibility::Visible);
-			ItemSkeleton->SetSimulatePhysics(false);
-		
-			//UE_LOG(LogTemp, Warning, TEXT("Applying Shader mat"));
 		}
 	}
 }
@@ -84,7 +89,7 @@ void AInteractableActor::OnSphereEndOverlap(UPrimitiveComponent* OverlappedCompo
 		{
 			Character->InteractionData.bShouldTraceForItems = false;
 			Character->HUD->GetInteractionWidget()->SetVisibility(ESlateVisibility::Collapsed);
-			//UE_LOG(LogTemp, Warning, TEXT("Removing Shader mat"));
+
 		}
 	}
 }
@@ -161,7 +166,6 @@ void AInteractableActor::EndInteract()
 	UE_LOG(LogTemp, Warning, TEXT("Calling End interact Override on interface test actor"));
 }
 
-
 void AInteractableActor::Interact(AMallProjectCharacter* CharacterReference)
 {
 
@@ -183,69 +187,70 @@ void AInteractableActor::SetItemProperties(EItemState State)
 {
 	switch (State)
 	{
-		case EItemState::ReadyForPickup:
+		case EItemState::Ready_For_Pickup:
 
 			//Set Collision Properties for the mesh
-			if (ItemMesh)
+			/*if (ItemMesh)
 			{
-				ItemMesh->SetSimulatePhysics(true);
+				ItemMesh->SetSimulatePhysics(false);
 				ItemMesh->SetVisibility(true);
 				ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-				ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+				//ItemMesh->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
 			}
+			*/
 
-			if (ItemSkeleton)
-			{			
-				//Set Collision Properties for the  SkeletalMesh
-				ItemSkeleton->SetSimulatePhysics(true);
-				//ItemSkeleton->SetVisibility(true);
-				ItemSkeleton->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Block);
-				ItemSkeleton->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+			//Set Collision Properties for the  SkeletalMesh
+			ItemSkeleton->SetSimulatePhysics(false);
+			ItemSkeleton->SetVisibility(true);
+			ItemSkeleton->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			ItemSkeleton->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-				//Set Collision properties for the area sphere 
-				SphereComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
-				SphereComps->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+			//Set Collision properties for the area sphere 
+			SphereComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Overlap);
+			SphereComps->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 
-				//Set Colision properties for the collision box
-				BoxComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-				BoxComps->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
-				BoxComps->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-
-			}
+			//Set Colision properties for the collision box
+			BoxComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			BoxComps->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
+			BoxComps->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
 			break;
 
-		case EItemState::EquipInterping:
+		case EItemState::Equip_Interping:
 			break;
 
-		case EItemState::PickedUp:
+		case EItemState::Item_PickedUp:
 			break;
+
 		case EItemState::Equipped:
 
-			if (ItemSkeleton)
-			{
-				//Set Collision Properties for the  SkeletalMesh
-				ItemSkeleton->SetSimulatePhysics(false);
-				//ItemSkeleton->SetVisibility(true);
-				ItemSkeleton->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-				//ItemSkeleton->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-				//Set Collision properties for the area sphere 
-				SphereComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-				SphereComps->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			//Set Collision Properties for the  SkeletalMesh
+			
+			ItemSkeleton->SetSimulatePhysics(false);
+			ItemSkeleton->SetVisibility(false);
+			ItemSkeleton->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			ItemSkeleton->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-				//Set Colision properties for the collision box
-				BoxComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-				BoxComps->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			//Set Collision properties for the area sphere 
+			SphereComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			SphereComps->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-			}
+			//Set Colision properties for the collision box
+			BoxComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			BoxComps->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 
 			//Set Collision Properties for the mesh
-			ItemMesh->SetSimulatePhysics(false);
-			ItemMesh->SetVisibility(true);
-			ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			//ItemMesh->SetSimulatePhysics(false);
+			//ItemMesh->SetVisibility(true);
+			//ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			//ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			
 
+			//GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			//GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			//GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			
 			break;
 

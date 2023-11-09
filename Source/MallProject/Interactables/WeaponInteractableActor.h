@@ -31,8 +31,8 @@ public:
 	// Variables & Properties
 	//================================================================================//
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
-	class UWeaponComponent* WeaponComps;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	//class UWeaponComponent* WeaponComps;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	EWeaponType WeaponType;

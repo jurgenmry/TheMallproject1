@@ -25,6 +25,8 @@ public:
 
 	bool bGamePause = false;
 
+	bool OverlayDisplay;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<class UMainMenu> MainMenuClass;
 
@@ -34,6 +36,8 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<class UInteractWidget> InteractWidgetClass;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	TSubclassOf<class UWeaponAndCrossHairDisplay> OverlayHudClass;
 
 
 	//==================================================================//
@@ -45,12 +49,14 @@ public:
 	void DisplayMenu();
 	void HideMenu();
 	void ToggleMenu();
-
+	void ToggleOverlayWidget();
 
 	void ShowInteractionWidget() const;
 	void HideInteractionWidget() const;
 
 	FORCEINLINE UInteractWidget* GetInteractionWidget() const { return InteractionWidget; }
+	FORCEINLINE bool SetOverlayDisplay(bool DisplayVisible)  { return OverlayDisplay = DisplayVisible; }
+
 
 protected:
 
@@ -66,6 +72,9 @@ protected:
 
 	UPROPERTY(meta = (AllowPrivateAccess="true"))
 	UInteractWidget* InteractionWidget;
+
+	UPROPERTY(meta = (AllowPrivateAccess = "true"))
+	UWeaponAndCrossHairDisplay* HudOverlayWidget;
 
 	//==================================================================//
 	// Functions	

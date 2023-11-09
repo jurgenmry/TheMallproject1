@@ -12,7 +12,7 @@
 
 AWeaponInteractableActor::AWeaponInteractableActor()
 {
-	WeaponComps = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComps"));
+	//WeaponComps = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComps"));
 	WeaponType = EWeaponType::Pistol;
 	
 	//ItemState = EItemState::ReadyForPickup;

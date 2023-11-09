@@ -12,11 +12,11 @@
 UENUM()
 enum class EItemState : uint8
 {
-	ReadyForPickup UMETA(DisplayName = "Ready_Pickup"),
-	EquipInterping UMETA(DisplayName = "EquipInterping"),
-	PickedUp UMETA(DisplayName = "PickedUp"),
+	Ready_For_Pickup UMETA(DisplayName = "Ready_For_Pickup"),
+	Equip_Interping UMETA(DisplayName = "Equip_Interping"),
+	Item_PickedUp UMETA(DisplayName = "Item_PickedUp"),
 	Equipped UMETA(DisplayName = "Equipped"),
-	NoState UMETA(DisplayName = "NoState") // This is for doors and others
+	NoState UMETA(DisplayName = "No_State") // This is for doors and others
 };
 
 UCLASS()

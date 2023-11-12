@@ -68,12 +68,27 @@ public:
 	//================================================================================//
 
 	/** Bool for AnimBP to switch to another animation set */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	bool bHasRifle;
 
 	/* to set up the weapon of the character on overlap */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon")
 	bool bHasWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintreadOnly, Category = "Weapon")
+	bool bAiming;
+
+	UPROPERTY(VisibleAnywhere, BlueprintreadOnly, Category = "Weapon")
+	float CameraDefaultFOV;
+
+	UPROPERTY(VisibleAnywhere, BlueprintreadOnly, Category = "Weapon")
+	float CameraZoomFOV;
+
+	UPROPERTY(VisibleAnywhere, BlueprintreadOnly, Category = "Weapon")
+	float CurrentFOV;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category = "Weapon")
+	float ZoomInterpSpeed;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool bIsJogging;
@@ -85,6 +100,8 @@ public:
 
 	UPROPERTY()
 	class AMallHud* HUD;
+
+
 
 
 	//=======================
@@ -153,6 +170,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	const UInputAction* Menu;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	const UInputAction* AimingAction;
+
 
 	//================================================================================//
 	// FUNCTIONS
@@ -164,9 +184,54 @@ public:
 
 	virtual void Tick(float DeltaSeconds) override;
 
+	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
+	
+	
+	///////  **** Action Functions  ****///////
+	///////////////////////////////////////////
+
 	void Move(const FInputActionValue& Value);
 
 	void Look(const FInputActionValue& Value);
+
+	void StartJogging();
+	void EndJogging();
+
+
+	void AimingButtonPressed();
+	void AimingButtonReleaded();
+	void CameraZoomForAiming(float DeltaTime);
+
+	void FireWeapon();
+
+	void ToggleMenu();
+
+	void ToggleFlashLight();
+
+	void Pause();
+
+
+	//----------- Interaction code --------------/
+
+	//For Tracing Under Crosshairs
+	bool PerformTrace(FHitResult& OutHitResult, FVector& OutHitLocation);
+
+	//This Works on the overlap Event for items
+	void TraceForItems();
+
+	//testing interaction with input button
+	void InteractInputButtonPressed();
+
+	FTimerHandle TimerHandle_Interaction;
+
+
+	void FoundInteractable(AActor* NewInteractable);
+	void NoInteractableFound();
+	void BeginInteract();
+	void EndInteract();
+	void Interact();
+
+	/* ----------------------------------------- */
 
 
 	/******************* Setters *******************/
@@ -240,7 +305,7 @@ private:
 	// FUNCTIONS
 	//================================================================================//
 
-	void FireWeapon();
+	
 
 protected:
 	
@@ -288,40 +353,8 @@ protected:
 	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
 
 
-	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
-
-	void ToggleMenu();
-
-	void ToggleFlashLight();
-
-	void StartJogging();
-	void EndJogging();
-
-
-public:
-
-	//----------- Interaction code --------------/
-
-	//For Tracing Under Crosshairs
-	bool PerformTrace(FHitResult& OutHitResult, FVector& OutHitLocation);
-
-	//This Works on the overlap Event for items
-	void TraceForItems();
-
-	//testing interaction with input button
-	void InteractInputButtonPressed();
-
-	FTimerHandle TimerHandle_Interaction;
-
-
-	void FoundInteractable(AActor* NewInteractable);
-	void NoInteractableFound();
-	void BeginInteract();
-	void EndInteract();
-	void Interact();
-
-	void Pause();
 
 	
+
 };
 

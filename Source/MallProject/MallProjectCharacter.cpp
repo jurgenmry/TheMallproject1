@@ -19,26 +19,28 @@
 #include "Particles/ParticleSystem.h"
 #include "DrawDebugHelpers.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Math/UnrealMathUtility.h"
 
 //Custome Includes
 #include "MallProject/UserInterface/MallHud.h"
 #include "MallProject/Interactables/WeaponInteractableActor.h"
 
-//////////////////////////////////////////////////////////////////////////
-// AMallProjectCharacter
+//===============================================================================+//
+// Default Functions
+//================================================================================//
 
 AMallProjectCharacter::AMallProjectCharacter()
-	: Starting9mmAmmo(50)
+	: bHasRifle(false)   // Character doesnt have a rifle at start
+	, bHasWeapon(false)  //Overall Weapon Set up 
+	, bAiming(false)
+	, CameraDefaultFOV(0.0f)
+	, CameraZoomFOV(60.0f)
+	, CurrentFOV(0.0f)
+	, ZoomInterpSpeed(40.0f)
+	, bHasWeapon1(false) //Character does not start with any weapon
+	, Starting9mmAmmo(50)
 	, Starting_AR_Ammo(120)
 {
-	//Overall Weapon Set up
-	bHasWeapon = false;
-
-	// Character doesnt have a rifle at start
-	bHasRifle = false;
-
-	//Character does not start with any weapon
-	bHasWeapon1 = false;
 	
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
@@ -99,6 +101,10 @@ void AMallProjectCharacter::BeginPlay()
 		return;
 	}
 
+	//For the aiming Functionality
+	CameraDefaultFOV = GetFirstPersonCameraComponent()->FieldOfView;
+	CurrentFOV = CameraDefaultFOV;
+
 	//SpawnDefaultWeapon();
 
 	//Initialized the value of the ammo;
@@ -110,9 +116,8 @@ void AMallProjectCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
 	TraceForItems();
+	CameraZoomForAiming(DeltaSeconds);
 }
-
-//////////////////////////////////////////////////////////////////////////// Input
 
 void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -156,6 +161,10 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		//adding weapon1
 		EnhancedInputComponent->BindAction(ChooseWeapon2Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::SetHasRifle);
 
+		//Aiming
+		EnhancedInputComponent->BindAction(AimingAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::AimingButtonPressed);
+		EnhancedInputComponent->BindAction(AimingAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::AimingButtonReleaded);
+
 	}
 }
 
@@ -185,61 +194,13 @@ void AMallProjectCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
-void AMallProjectCharacter::SetHasRifle()
-{
-	if (CurrentWeapon)
-	{
-		if (!bHasRifle)
-		{
-			//Play Animation Montage
-			bHasRifle = true;
-		}
-
-		else if (bHasRifle)
-		{
-			//Play Animation Montage
-			bHasRifle = false;
-		}
-	}
-}
-
-void AMallProjectCharacter::SetHasWeapon1()
-{
-	if (CurrentWeapon && CurrentWeapon ->WeaponType == EWeaponType::Pistol)
-	{
-		if (!bHasWeapon1)
-		{
-			//Play Animation Montage
-			CurrentWeapon->GetItemSkeleton()->SetVisibility(true);
-			bHasWeapon1 = true;
-			
-		}
-
-		else if (bHasWeapon1)
-		{
-			//Play Animation Montage
-			CurrentWeapon->GetItemSkeleton()->SetVisibility(false);
-			bHasWeapon1 = false;
-			
-		}
-	}
-}
-
-bool AMallProjectCharacter::GetHasRifle()
-{
-	return bHasRifle;
-}
-
-bool AMallProjectCharacter::GetHasWeapon1()
-{
-	return false;
-}
-
 
 
 //================================================================================//
 // Custome Functions
 //================================================================================//
+
+// INPUNT FUNCTIONS 
 
 void AMallProjectCharacter::InteractInputButtonPressed()
 {
@@ -292,6 +253,84 @@ void AMallProjectCharacter::EndJogging()
 	bIsJogging = false;
 }
 
+void AMallProjectCharacter::AimingButtonPressed()
+{
+	bAiming = true;
+}
+
+void AMallProjectCharacter::AimingButtonReleaded()
+{
+	bAiming = false;
+}
+
+void AMallProjectCharacter::CameraZoomForAiming(float DeltaTime)
+{
+
+	if (bAiming)
+	{
+		CurrentFOV = FMath::FInterpTo(
+			CurrentFOV, CameraZoomFOV, DeltaTime, ZoomInterpSpeed);
+	}
+	else
+	{
+		CurrentFOV = FMath::FInterpTo(
+			CurrentFOV, CameraDefaultFOV, DeltaTime, ZoomInterpSpeed);
+	}
+
+	GetFirstPersonCameraComponent()->SetFieldOfView(CurrentFOV);
+}
+
+// Need to arrange fucntions 
+
+void AMallProjectCharacter::SetHasRifle()
+{
+	if (CurrentWeapon)
+	{
+		if (!bHasRifle)
+		{
+			//Play Animation Montage
+			bHasRifle = true;
+		}
+
+		else if (bHasRifle)
+		{
+			//Play Animation Montage
+			bHasRifle = false;
+		}
+	}
+}
+
+void AMallProjectCharacter::SetHasWeapon1()
+{
+	if (CurrentWeapon && CurrentWeapon->WeaponType == EWeaponType::Pistol)
+	{
+		if (!bHasWeapon1)
+		{
+			//Play Animation Montage
+			CurrentWeapon->GetItemSkeleton()->SetVisibility(true);
+			bHasWeapon1 = true;
+
+		}
+
+		else if (bHasWeapon1)
+		{
+			//Play Animation Montage
+			CurrentWeapon->GetItemSkeleton()->SetVisibility(false);
+			bHasWeapon1 = false;
+
+		}
+	}
+}
+
+bool AMallProjectCharacter::GetHasRifle()
+{
+	return bHasRifle;
+}
+
+bool AMallProjectCharacter::GetHasWeapon1()
+{
+	return false;
+}
 
 ///  This code has to do with firing the wapon and do line traces. 
 /// 
@@ -666,7 +705,7 @@ void AMallProjectCharacter::EquipWeapon(AWeaponInteractableActor* WeaponToEquip)
 			bHasWeapon = true;
 			CurrentWeapon = WeaponToEquip;
 			CurrentWeapon->SetItemState(EItemState::Equipped);
-			CharacterHasWeapon();
+			//CharacterHasWeapon();
 			
 			//WeaponToEquip = CurrentWeapon;
 

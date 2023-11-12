@@ -3,9 +3,17 @@
 
 #include "MallProject/UserInterface/WeaponAndCrossHairDisplay.h"
 
-//custome includes
-#include "MallProject/UserInterface/AmmoCountWidget.h"
 
+FVector2D UWeaponAndCrossHairDisplay::SetScreenCenterCrossHair()
+{
+	float ScrenY = ScreenCenter.Y / 2;
+	float ScrenX = ScreenCenter.X / 2;
+
+	ScreenCenter.X = ScrenX;
+	ScreenCenter.Y = ScrenY;
+	
+	return ScreenCenter;
+}
 
 void UWeaponAndCrossHairDisplay::NativeOnInitialized()
 {
@@ -15,4 +23,5 @@ void UWeaponAndCrossHairDisplay::NativeOnInitialized()
 void UWeaponAndCrossHairDisplay::NativeConstruct()
 {
 	Super::NativeConstruct();
+	SetScreenCenterCrossHair();
 }

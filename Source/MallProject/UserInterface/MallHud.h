@@ -44,7 +44,9 @@ public:
 	// Functions	
 	//==================================================================//
 
-	AMallHud();
+	AMallHud(const FObjectInitializer& ObjectInitializer);
+
+
 
 	void DisplayMenu();
 	void HideMenu();
@@ -57,6 +59,15 @@ public:
 	FORCEINLINE UInteractWidget* GetInteractionWidget() const { return InteractionWidget; }
 	FORCEINLINE bool SetOverlayDisplay(bool DisplayVisible)  { return OverlayDisplay = DisplayVisible; }
 
+
+	//Testing for the overlayDisplay//
+	//------------------------------//
+	bool CrossHairDraw;
+	void DrawCrossHairs(bool CrossHairVisible);
+	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	class UTexture* CrossHairTexture;
+
+	//virtual void DrawHUD() override;
 
 protected:
 

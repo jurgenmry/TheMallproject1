@@ -16,6 +16,18 @@ class MALLPROJECT_API UWeaponAndCrossHairDisplay : public UUserWidget
 
 public:
 
+	FVector2D ScreenCenter;
+
+	UFUNCTION()
+	FVector2D SetScreenCenterCrossHair();
+	
+	FORCEINLINE FVector2D ReturnScreenCenter() const { return ScreenCenter; }
+	
+
+	//UPROPERTY(EditDefaultsOnly, meta = (BindWidget), Category = "Blur")
+	//class UImage* CrossHairDot;
+
+
 	virtual void NativeOnInitialized() override;
 	virtual void NativeConstruct() override;
 	

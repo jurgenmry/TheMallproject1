@@ -4,6 +4,7 @@
 #include "MallProject/UserInterface/MallHud.h"
 
 //System includes:
+#include "Engine/Texture.h"
 
 //custome includes:
 #include "MallProject/UserInterface/MainMenu.h"
@@ -11,14 +12,19 @@
 #include "Kismet/GameplayStatics.h"
 #include "MallProject/UserInterface/InteractWidget.h"
 #include "MallProject/UserInterface/WeaponAndCrossHairDisplay.h"
+#include "MallProject/UserInterface/WeaponAndCrossHairDisplay.h"
 
-AMallHud::AMallHud()
+AMallHud::AMallHud(const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer)
 {
+	
 }
 
 void AMallHud::BeginPlay()
 {
 	Super::BeginPlay();
+
+	CrossHairDraw = true;
 
 	MainMenuWidget = CreateWidget<UMainMenu>(GetWorld(), MainMenuClass);
 	if (!ensure(MainMenuClass != NULL)) return;
@@ -40,7 +46,12 @@ void AMallHud::BeginPlay()
 	HudOverlayWidget = CreateWidget<UWeaponAndCrossHairDisplay>(GetWorld(), OverlayHudClass);
 	if (!ensure(OverlayHudClass != NULL)) return;
 	HudOverlayWidget->AddToViewport();
-	HudOverlayWidget->SetVisibility(ESlateVisibility::Collapsed);
+	HudOverlayWidget->SetVisibility(ESlateVisibility::Visible);
+
+	
+	//test Place 
+	//this->DrawHUD();
+	//DrawCrossHairs(true);
 
 }
 
@@ -123,4 +134,27 @@ void AMallHud::HideInteractionWidget() const
 		InteractionWidget->ReverseFadeAnimation();
 	}
 }
+
+void AMallHud::DrawCrossHairs(bool CrossHairVisible)
+{
+	if (CrossHairVisible)
+	{
+		if (!ensure(CrossHairTexture != NULL)) return;
+		this->DrawTexture(
+			CrossHairTexture, 
+			HudOverlayWidget->ReturnScreenCenter().X, 
+			HudOverlayWidget->ReturnScreenCenter().Y, 
+			64.0f, 64.0f,0.0f, 0.0f, 1.0f, 1.0f);
+	}
+}
+
+/*
+void AMallHud::DrawHUD()
+{
+
+	Super::DrawHUD();
+	//ReceiveDrawHUD()
+	DrawCrossHairs(true);
+}
+*/
 

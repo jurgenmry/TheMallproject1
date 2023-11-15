@@ -74,9 +74,12 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bHasWeapon2;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	bool bAiming;
 
 	//================================================================================//
 	// FUNCTIONS
 	//================================================================================//
+
 
 };

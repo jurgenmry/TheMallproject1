@@ -96,6 +96,18 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool bHasWeapon1;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	float HipTurnRate; //Turn rate while not aiming
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	float HipLookUpRate; //Look up rate when not aiming
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	float AimingTurnRate; // Turn rate when aiming
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
+	float AimingLookUpRate; //Look up rate when aiming
+
 	FInteractionData InteractionData;
 
 	UPROPERTY()
@@ -191,8 +203,9 @@ public:
 	///////////////////////////////////////////
 
 	void Move(const FInputActionValue& Value);
-
 	void Look(const FInputActionValue& Value);
+
+	void SetLookUpRates(float DeltaTime);
 
 	void StartJogging();
 	void EndJogging();
@@ -251,6 +264,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	bool GetHasWeapon1();
+
+	FORCEINLINE bool GetAiming() const { return bAiming; }
 
 	UFUNCTION()
 	FORCEINLINE bool GetHasWeapon() const { return bHasWeapon; }

@@ -30,14 +30,25 @@
 //================================================================================//
 
 AMallProjectCharacter::AMallProjectCharacter()
+	/* Weapon States for  animation*/
 	: bHasRifle(false)   // Character doesnt have a rifle at start
 	, bHasWeapon(false)  //Overall Weapon Set up 
 	, bAiming(false)
+
+	/* Setting for the camera while */
 	, CameraDefaultFOV(0.0f)
 	, CameraZoomFOV(60.0f)
 	, CurrentFOV(0.0f)
 	, ZoomInterpSpeed(40.0f)
 	, bHasWeapon1(false) //Character does not start with any weapon
+
+	/* Turn rates for aiming / Not aiming */
+	, HipTurnRate (90.0f)
+	, HipLookUpRate (90.0f)
+	, AimingTurnRate (20.0f)
+	, AimingLookUpRate (20.0f)
+
+	/* Weapon Amunitions */
 	, Starting9mmAmmo(50)
 	, Starting_AR_Ammo(120)
 {
@@ -194,6 +205,20 @@ void AMallProjectCharacter::Look(const FInputActionValue& Value)
 	}
 }
 
+void AMallProjectCharacter::SetLookUpRates(float DeltaTime)
+{
+	if (bAiming)
+	{
+		//baseTurnRate = AimingTurnRate;
+		//baseLookUpRate = AimingLookUpRate
+	}
+	else
+	{
+		//baseTurnRate = HipTurnRate;
+		//baseLookUpRate =HipLookUpRate; 
+	}
+}
+
 
 
 //================================================================================//
@@ -255,7 +280,10 @@ void AMallProjectCharacter::EndJogging()
 
 void AMallProjectCharacter::AimingButtonPressed()
 {
-	bAiming = true;
+	if (bHasWeapon)
+	{
+		bAiming = true;
+	}
 }
 
 void AMallProjectCharacter::AimingButtonReleaded()

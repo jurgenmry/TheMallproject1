@@ -51,3 +51,7 @@ Session.vim
 .vs
 Content/MetaHumans/Common/Face/Face_Archetype.uasset
 Content/MetaHumans/Michael/Face/Michael_FaceMesh.uasset
+Content/_Game/Blueprints/Actors/characters/FoodStoreCharacter/Talking1Talking_Anim_mixamo_com.uasset
+Content/_Game/Blueprints/Actors/characters/FoodStoreCharacter/TalkingLessSpeed.uasset
+Content/MetaHumans/Mall2/Face/Mall2_FaceMesh.uasset
+Content/MetaHumans/MallC1/Face/MallC1_FaceMesh.uasset

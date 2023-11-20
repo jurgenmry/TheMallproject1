@@ -96,17 +96,20 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool bHasWeapon1;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
-	float HipTurnRate; //Turn rate while not aiming
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (ClampMin ="0.0", ClampMax ="1.0"))
+	float BaseLookUpRateX;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
-	float HipLookUpRate; //Look up rate when not aiming
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float BaseLookUpRateY;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
-	float AimingTurnRate; // Turn rate when aiming
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float BaseLookUpRateXAiming; //Turn rate while not aiming
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
-	float AimingLookUpRate; //Look up rate when aiming
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (ClampMin = "0.0", ClampMax = "1.0"))
+	float BaseLookUpRateYAiming; //Look up rate when not aiming
+
+	float CurrentRateX;
+	float CurrentRateY;
 
 	FInteractionData InteractionData;
 
@@ -129,6 +132,13 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	USpringArmComponent* BodySpringArm;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	USpringArmComponent* LightSpringArm;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	USpotLightComponent* FlashLight;

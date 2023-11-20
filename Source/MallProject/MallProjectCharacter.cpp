@@ -43,10 +43,10 @@ AMallProjectCharacter::AMallProjectCharacter()
 	, bHasWeapon1(false) //Character does not start with any weapon
 
 	/* Turn rates for aiming / Not aiming */
-	, HipTurnRate (90.0f)
-	, HipLookUpRate (90.0f)
-	, AimingTurnRate (20.0f)
-	, AimingLookUpRate (20.0f)
+	, BaseLookUpRateX(0.5f)
+	, BaseLookUpRateY(0.5f)
+	, BaseLookUpRateXAiming(0.2f)
+	, BaseLookUpRateYAiming(0.2f)
 
 	/* Weapon Amunitions */
 	, Starting9mmAmmo(50)
@@ -62,30 +62,51 @@ AMallProjectCharacter::AMallProjectCharacter()
 	CameraBoom->TargetArmLength = 0.0f;
 	CameraBoom->SetupAttachment(GetCapsuleComponent());
 	CameraBoom->bEnableCameraRotationLag = true;
-	CameraBoom->CameraRotationLagSpeed = 10.0f;
-	CameraBoom->bUsePawnControlRotation = false;
+	CameraBoom->CameraRotationLagSpeed = 30.0f; // Was set at 10 Before
+	CameraBoom->CameraLagSpeed = 40.0f;
+	CameraBoom->bUsePawnControlRotation = true;
 
 	// Create a CameraComponent	
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(CameraBoom);
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
-	FirstPersonCameraComponent->bUsePawnControlRotation = true;
+	FirstPersonCameraComponent->bUsePawnControlRotation = false;
 
 	//FirstPersonCameraComponent->bConstrainAspectRatio = true;
 	//FirstPersonCameraComponent->AspectRatio = 1.333333f;
 
+
+	//Create Body Spring Arm
+	BodySpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("BodySpringArm"));
+	BodySpringArm->TargetArmLength = 0.0f;
+	BodySpringArm->SetupAttachment(GetFirstPersonCameraComponent());
+	BodySpringArm->bEnableCameraRotationLag = true;
+	BodySpringArm->CameraRotationLagSpeed = 7.0f; 
+	BodySpringArm->bUsePawnControlRotation = false;
+
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));
 	Mesh1P->SetOnlyOwnerSee(true);
-	Mesh1P->SetupAttachment(FirstPersonCameraComponent);
-	Mesh1P->bCastDynamicShadow = false;
-	Mesh1P->CastShadow = false;
+	Mesh1P->SetupAttachment(BodySpringArm);
+	//Mesh1P->SetupAttachment(GetCapsuleComponent());
+	Mesh1P->bCastDynamicShadow = true; //false
+	Mesh1P->CastShadow = true; //false
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
+
+	//Create Light Spring Arm
+	LightSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("LightSpringArm"));
+	LightSpringArm->TargetArmLength = 0.0f;
+	LightSpringArm->SetupAttachment(GetCapsuleComponent());
+	LightSpringArm->SetRelativeLocation(FVector(-20.0f, 0.0f, 30.0f));
+	LightSpringArm->bEnableCameraRotationLag = true;
+	LightSpringArm->CameraRotationLagSpeed = 12.0f;
+	LightSpringArm->bUsePawnControlRotation = true;
+
 	//Create the Default flashlight
 	FlashLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashLight"));
-	FlashLight->SetupAttachment(FirstPersonCameraComponent);
+	FlashLight->SetupAttachment(LightSpringArm);
 	FlashLight->SetVisibility(true);
 	
 }
@@ -128,6 +149,8 @@ void AMallProjectCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 	TraceForItems();
 	CameraZoomForAiming(DeltaSeconds);
+	SetLookUpRates(DeltaSeconds); //change look sensitivity base on aiming
+
 }
 
 void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -200,22 +223,26 @@ void AMallProjectCharacter::Look(const FInputActionValue& Value)
 	if (Controller != nullptr)
 	{
 		// add yaw and pitch input to controller
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
+		//AddControllerYawInput(LookAxisVector.X * BaseTurnRate * GetWorld()->DeltaTimeSeconds);
+		//AddControllerPitchInput(LookAxisVector.Y * BaseLookUpRate * GetWorld()->DeltaTimeSeconds);
+		
+		AddControllerYawInput(LookAxisVector.X * CurrentRateX); //Original
+		AddControllerPitchInput(LookAxisVector.Y * CurrentRateY);
 	}
 }
 
 void AMallProjectCharacter::SetLookUpRates(float DeltaTime)
 {
+	
 	if (bAiming)
 	{
-		//baseTurnRate = AimingTurnRate;
-		//baseLookUpRate = AimingLookUpRate
+		CurrentRateX = BaseLookUpRateXAiming;
+		CurrentRateY = BaseLookUpRateYAiming;
 	}
 	else
 	{
-		//baseTurnRate = HipTurnRate;
-		//baseLookUpRate =HipLookUpRate; 
+		CurrentRateX = BaseLookUpRateX;
+		CurrentRateY = BaseLookUpRateY;
 	}
 }
 

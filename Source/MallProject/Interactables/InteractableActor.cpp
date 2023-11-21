@@ -21,16 +21,18 @@ AInteractableActor::AInteractableActor()
 
 	PrimaryActorTick.bCanEverTick = false;
 
-	ItemSkeleton = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemSkeleton"));
-	ItemSkeleton->SetupAttachment(GetRootComponent());
-	ItemSkeleton->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	SetRootComponent(ItemSkeleton);
 
 	BoxComps = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxComps"));
 	//BoxComps->SetupAttachment(GetRootComponent());
 	BoxComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	BoxComps->SetCollisionResponseToChannel(ECollisionChannel::ECC_Visibility, ECollisionResponse::ECR_Block);
-	BoxComps->SetupAttachment(GetRootComponent());
+	SetRootComponent(BoxComps);
+	BoxComps->SetHiddenInGame(true);
+
+	ItemSkeleton = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemSkeleton"));
+	ItemSkeleton->SetupAttachment(GetRootComponent());
+	ItemSkeleton->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	ItemSkeleton->SetupAttachment(GetRootComponent());
 	
 	//BoxComps->SetHiddenInGame(true);
 
@@ -41,6 +43,7 @@ AInteractableActor::AInteractableActor()
 	SphereComps = CreateDefaultSubobject<USphereComponent>(TEXT("SphereComps"));
 	SphereComps->SetSphereRadius(70.0f);
 	SphereComps->SetupAttachment(GetRootComponent());
+	SphereComps->SetHiddenInGame(true);
 
 	InstaceInteractableData.InteractableType = EInteractableType::Pickup;
 }
@@ -111,6 +114,7 @@ void AInteractableActor::BeginFocus()
 		case EInteractableType::NonPlayableCharacter:
 			break;
 		case EInteractableType::Device:
+			//Show a widget
 			break;
 		case EInteractableType::Toggle:
 			break;
@@ -141,6 +145,7 @@ void AInteractableActor::EndFocus()
 		case EInteractableType::NonPlayableCharacter:
 			break;
 		case EInteractableType::Device:
+			//Stop Showing widget
 			break;
 		case EInteractableType::Toggle:
 			break;

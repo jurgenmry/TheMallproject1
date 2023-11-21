@@ -74,7 +74,7 @@ public:
 	void SetItemProperties(EItemState State);
 
 	//Getters
-
+	FORCEINLINE UStaticMeshComponent* GetItemMesh() const { return ItemMesh; }
 	FORCEINLINE USkeletalMeshComponent* GetItemSkeleton() const { return ItemSkeleton; }
 	FORCEINLINE UBoxComponent* GetBoxComponent() const { return BoxComps; }
 	FORCEINLINE USphereComponent* GetSphereComponent() const { return SphereComps;  }

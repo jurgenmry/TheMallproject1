@@ -96,7 +96,7 @@ void UTMPAnimInstance::UpdateAnimationProperties(float DeltaTime)
 
 		}
 
-		bAiming = Character->GetAiming();
+		//bAiming = Character->GetAiming();
 
 
 	}

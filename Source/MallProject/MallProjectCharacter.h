@@ -55,6 +55,7 @@ class UAnimMontage;
 class USoundBase;
 class USpotLightComponent;
 class USpringArmComponent;
+class UCineCameraComponent;
 
 UCLASS(config=Game)
 class AMallProjectCharacter : public ACharacter
@@ -143,6 +144,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	USpotLightComponent* FlashLight;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
+	UCineCameraComponent* FPSCameraComponent;
 
 	//=======================
 	//Input
@@ -283,6 +286,8 @@ public:
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+	UCineCameraComponent* GetFPSCameraComponent() const { return FPSCameraComponent; }
 
 	USpotLightComponent* GetSpolight() const { return FlashLight; }
 

@@ -20,6 +20,8 @@
 #include "DrawDebugHelpers.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Math/UnrealMathUtility.h"
+#include "Runtime/CinematicCamera/Public/CineCameraComponent.h"
+//#include "CineCameraComponent.h"
 
 //Custome Includes
 #include "MallProject/UserInterface/MallHud.h"
@@ -39,7 +41,7 @@ AMallProjectCharacter::AMallProjectCharacter()
 	, CameraDefaultFOV(0.0f)
 	, CameraZoomFOV(60.0f)
 	, CurrentFOV(0.0f)
-	, ZoomInterpSpeed(40.0f)
+	, ZoomInterpSpeed(20.0f)
 	, bHasWeapon1(false) //Character does not start with any weapon
 
 	/* Turn rates for aiming / Not aiming */
@@ -67,10 +69,17 @@ AMallProjectCharacter::AMallProjectCharacter()
 	CameraBoom->bUsePawnControlRotation = true;
 
 	// Create a CameraComponent	
-	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
-	FirstPersonCameraComponent->SetupAttachment(CameraBoom);
-	FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
-	FirstPersonCameraComponent->bUsePawnControlRotation = false;
+	//FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
+	//FirstPersonCameraComponent->SetupAttachment(CameraBoom);
+	//FirstPersonCameraComponent->SetRelativeLocation(FVector(-10.f, 0.f, 60.f)); // Position the camera
+	//FirstPersonCameraComponent->bUsePawnControlRotation = false;
+
+	// Create a CameraComponent	
+	FPSCameraComponent = CreateDefaultSubobject<UCineCameraComponent>(TEXT("FPSCameraComponent"));
+	FPSCameraComponent->SetupAttachment(CameraBoom);
+	FPSCameraComponent->SetRelativeLocation(FVector(0.f, 0.f, 0.f)); // Position the camera
+	FPSCameraComponent->bUsePawnControlRotation = false;
+	
 
 	//FirstPersonCameraComponent->bConstrainAspectRatio = true;
 	//FirstPersonCameraComponent->AspectRatio = 1.333333f;
@@ -79,7 +88,8 @@ AMallProjectCharacter::AMallProjectCharacter()
 	//Create Body Spring Arm
 	BodySpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("BodySpringArm"));
 	BodySpringArm->TargetArmLength = 0.0f;
-	BodySpringArm->SetupAttachment(GetFirstPersonCameraComponent());
+	//BodySpringArm->SetupAttachment(GetFirstPersonCameraComponent());
+	BodySpringArm->SetupAttachment(GetFPSCameraComponent());
 	BodySpringArm->bEnableCameraRotationLag = true;
 	BodySpringArm->CameraRotationLagSpeed = 7.0f; 
 	BodySpringArm->bUsePawnControlRotation = false;
@@ -134,7 +144,9 @@ void AMallProjectCharacter::BeginPlay()
 	}
 
 	//For the aiming Functionality
-	CameraDefaultFOV = GetFirstPersonCameraComponent()->FieldOfView;
+	//CameraDefaultFOV = GetFirstPersonCameraComponent()->FieldOfView;
+	GetFPSCameraComponent()->SetFieldOfView(100.0f);
+	CameraDefaultFOV = GetFPSCameraComponent()->FieldOfView;
 	CurrentFOV = CameraDefaultFOV;
 
 	//SpawnDefaultWeapon();
@@ -325,14 +337,22 @@ void AMallProjectCharacter::CameraZoomForAiming(float DeltaTime)
 	{
 		CurrentFOV = FMath::FInterpTo(
 			CurrentFOV, CameraZoomFOV, DeltaTime, ZoomInterpSpeed);
+		//GetFirstPersonCameraComponent() ->PostProcessSettings.DepthOfFieldFstop  
+		//GetFirstPersonCameraComponent()->PostProcessSettings.DepthOfFieldFocalDistance = 50.0f;
+		//GetFirstPersonCameraComponent()->PostProcessSettings.DepthOfFieldFstop = 11.0f;
+		//GetFirstPersonCameraComponent()->PostProcessSettings.DepthOfFieldMinFstop = 1.0f;
 	}
 	else
 	{
 		CurrentFOV = FMath::FInterpTo(
 			CurrentFOV, CameraDefaultFOV, DeltaTime, ZoomInterpSpeed);
+		//GetFirstPersonCameraComponent()->PostProcessSettings.DepthOfFieldFocalDistance = 0.0f;
+		//GetFirstPersonCameraComponent()->PostProcessSettings.DepthOfFieldFstop = 4.0f;
+		//GetFirstPersonCameraComponent()->PostProcessSettings.DepthOfFieldMinFstop = 1.2f;
 	}
 
-	GetFirstPersonCameraComponent()->SetFieldOfView(CurrentFOV);
+	//GetFirstPersonCameraComponent()->SetFieldOfView(CurrentFOV);
+	GetFPSCameraComponent()->SetFieldOfView(CurrentFOV);
 }
 
 // Need to arrange fucntions 

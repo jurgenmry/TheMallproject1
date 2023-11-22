@@ -46,6 +46,11 @@
 		{
 			"Name": "HairStrands",
 			"Enabled": true
+		},
+		{
+			"Name": "WalkieTalkieSystem",
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/c446b8b9bba1401ab6ecc8743c5b3829"
 		}
 	]
 }

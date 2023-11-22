@@ -104,6 +104,24 @@ AMallProjectCharacter::AMallProjectCharacter()
 	//Mesh1P->SetRelativeRotation(FRotator(0.9f, -19.19f, 5.2f));
 	Mesh1P->SetRelativeLocation(FVector(-30.f, 0.f, -150.f));
 
+	//Create mesh for the feet
+	Feet = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Feet"));
+	Feet->SetupAttachment(GetMesh());
+
+	//Create mesh for the legs
+	Legs = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Legs"));
+	Legs->SetupAttachment(GetMesh());
+
+	//Create mesh for the Torso
+	Torso = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Torso"));
+	Torso->SetupAttachment(GetMesh());
+
+	//Create mesh for the face
+	Face = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Face"));
+	Face->SetupAttachment(GetMesh());
+	Face->bRenderInMainPass = false;
+
+	GetMesh()->bRenderInMainPass = false;
 
 	//Create Light Spring Arm
 	LightSpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("LightSpringArm"));

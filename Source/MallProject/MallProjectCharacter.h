@@ -128,6 +128,19 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category= Components)
 	USkeletalMeshComponent* Mesh1P;
 
+	UPROPERTY(VisibleDefaultsOnly, Category = Components)
+	USkeletalMeshComponent* Feet;
+	
+	UPROPERTY(VisibleDefaultsOnly, Category = Components)
+	USkeletalMeshComponent* Legs;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Components)
+	USkeletalMeshComponent* Torso;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = Components)
+	USkeletalMeshComponent* Face;
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
 

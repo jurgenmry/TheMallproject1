@@ -211,6 +211,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	const UInputAction* AimingAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* WalkieTalkieAction;
+
 
 	//================================================================================//
 	// FUNCTIONS
@@ -242,6 +245,8 @@ public:
 	void CameraZoomForAiming(float DeltaTime);
 
 	void FireWeapon();
+
+	void TalkWalkieTalkie();
 
 	void ToggleMenu();
 
@@ -332,6 +337,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* HipFire;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* WalkieTalkieAnimation;
 
 	//Map to Keep Track of ammo of different weapons
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))

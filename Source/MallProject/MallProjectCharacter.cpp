@@ -229,6 +229,8 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		EnhancedInputComponent->BindAction(AimingAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::AimingButtonPressed);
 		EnhancedInputComponent->BindAction(AimingAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::AimingButtonReleaded);
 
+		//WalkieTalkie 
+		EnhancedInputComponent->BindAction(WalkieTalkieAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::TalkWalkieTalkie);
 	}
 }
 
@@ -553,6 +555,16 @@ void AMallProjectCharacter::FireWeapon()
 	{
 		AnimIntance->Montage_Play(HipFire);
 		AnimIntance->Montage_JumpToSection(FName("Fire"));
+	}
+}
+
+void AMallProjectCharacter::TalkWalkieTalkie()
+{
+	UAnimInstance* AnimIntance = GetMesh1P()->GetAnimInstance();
+	if (AnimIntance && WalkieTalkieAnimation)
+	{
+		AnimIntance->Montage_Play(WalkieTalkieAnimation);
+		AnimIntance->Montage_JumpToSection(FName("WalkieTalkie"));
 	}
 }
 

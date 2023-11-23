@@ -36,6 +36,7 @@ AMallProjectCharacter::AMallProjectCharacter()
 	: bHasRifle(false)   // Character doesnt have a rifle at start
 	, bHasWeapon(false)  //Overall Weapon Set up 
 	, bAiming(false)
+	, bWalkieTalkie(false)
 
 	/* Setting for the camera while */
 	, CameraDefaultFOV(0.0f)
@@ -180,7 +181,7 @@ void AMallProjectCharacter::Tick(float DeltaSeconds)
 	TraceForItems();
 	CameraZoomForAiming(DeltaSeconds);
 	SetLookUpRates(DeltaSeconds); //change look sensitivity base on aiming
-
+	
 }
 
 void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -230,7 +231,9 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		EnhancedInputComponent->BindAction(AimingAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::AimingButtonReleaded);
 
 		//WalkieTalkie 
-		EnhancedInputComponent->BindAction(WalkieTalkieAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::TalkWalkieTalkie);
+		EnhancedInputComponent->BindAction(WalkieTalkieAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::WalkieTalkieButtonPressed);
+		//EnhancedInputComponent->BindAction(WalkieTalkieAction, ETriggerEvent::Ongoing, this, &AMallProjectCharacter::WalkieTalkieButtonHold);
+		EnhancedInputComponent->BindAction(WalkieTalkieAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::WalkieTalkieButtonReleased);
 	}
 }
 
@@ -560,11 +563,48 @@ void AMallProjectCharacter::FireWeapon()
 
 void AMallProjectCharacter::TalkWalkieTalkie()
 {
+	/*
+	UAnimInstance* AnimIntance = GetMesh1P()->GetAnimInstance();
+	if (AnimIntance && WalkieTalkieAnimation)
+	{
+		if (bWalkieTalkie)
+		{
+
+			AnimIntance->Montage_Play(WalkieTalkieAnimation);
+			AnimIntance->Montage_JumpToSection(FName("WalkieDown"));
+			//AnimIntance->Montage_JumpToSection(FName("W"));
+		}
+		/*else
+		{
+			AnimIntance->Montage_Play(WalkieTalkieAnimation);
+			AnimIntance->Montage_JumpToSection(FName("WalkieDown"));
+		}
+		
+	}
+	*/
+
+
+}
+
+void AMallProjectCharacter::WalkieTalkieButtonPressed()
+{
+	bWalkieTalkie = true;
+	//TalkWalkieTalkie();
+}
+
+void AMallProjectCharacter::WalkieTalkieButtonReleased()
+{
+	bWalkieTalkie = false;
+	//TalkWalkieTalkie();
+}
+
+void AMallProjectCharacter::WalkieTalkieButtonHold()
+{
 	UAnimInstance* AnimIntance = GetMesh1P()->GetAnimInstance();
 	if (AnimIntance && WalkieTalkieAnimation)
 	{
 		AnimIntance->Montage_Play(WalkieTalkieAnimation);
-		AnimIntance->Montage_JumpToSection(FName("WalkieTalkie"));
+		AnimIntance->Montage_JumpToSection(FName("WalkieHold"));
 	}
 }
 

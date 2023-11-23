@@ -98,6 +98,8 @@ void UTMPAnimInstance::UpdateAnimationProperties(float DeltaTime)
 
 		//bAiming = Character->GetAiming();
 
+		bWalkieTalkie = Character->GetWalkieTalkie();
+
 
 	}
 

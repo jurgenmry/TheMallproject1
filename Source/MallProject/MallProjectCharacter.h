@@ -80,6 +80,9 @@ public:
 	bool bAiming;
 
 	UPROPERTY(VisibleAnywhere, BlueprintreadOnly, Category = "Weapon")
+	bool bWalkieTalkie;
+
+	UPROPERTY(VisibleAnywhere, BlueprintreadOnly, Category = "Weapon")
 	float CameraDefaultFOV;
 
 	UPROPERTY(VisibleAnywhere, BlueprintreadOnly, Category = "Weapon")
@@ -247,6 +250,10 @@ public:
 	void FireWeapon();
 
 	void TalkWalkieTalkie();
+	void WalkieTalkieButtonPressed();
+	void WalkieTalkieButtonReleased();
+	void WalkieTalkieButtonHold();
+	
 
 	void ToggleMenu();
 
@@ -300,6 +307,9 @@ public:
 
 	UFUNCTION()
 	FORCEINLINE bool GetHasWeapon() const { return bHasWeapon; }
+
+	UFUNCTION()
+	FORCEINLINE bool GetWalkieTalkie() const { return bWalkieTalkie; }
 
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 

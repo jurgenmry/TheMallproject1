@@ -115,6 +115,18 @@ public:
 	float CurrentRateX;
 	float CurrentRateY;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CrossHair")
+	float CrossHairSpreedMultiplier; // Determines the spreed 
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CrossHair")
+	float CrossHairVelocityFactor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CrossHair")
+	float CrossHairAimFactor;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CrossHair")
+	float CrossHairShootingfactor;
+
 	FInteractionData InteractionData;
 
 	UPROPERTY()
@@ -230,6 +242,7 @@ public:
 
 	virtual void SetupPlayerInputComponent(UInputComponent* InputComponent) override;
 	
+	void CalculateCrossHairSpread(float DeltaTime);
 	
 	///////  **** Action Functions  ****///////
 	///////////////////////////////////////////

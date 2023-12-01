@@ -13,6 +13,7 @@
 #include "MallProject/UserInterface/InteractWidget.h"
 #include "MallProject/UserInterface/WeaponAndCrossHairDisplay.h"
 #include "MallProject/UserInterface/WeaponAndCrossHairDisplay.h"
+#include "MallProject/MallProjectCharacter.h"
 
 AMallHud::AMallHud(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
@@ -48,7 +49,9 @@ void AMallHud::BeginPlay()
 	HudOverlayWidget->AddToViewport();
 	HudOverlayWidget->SetVisibility(ESlateVisibility::Visible);
 
-	
+	MainCharacter = Cast<AMallProjectCharacter>(GetWorld()->GetFirstPlayerController());
+	//if (!ensure(MainCharacter != NULL)) return;
+
 	//test Place 
 	//this->DrawHUD();
 	//DrawCrossHairs(true);
@@ -148,11 +151,35 @@ void AMallHud::DrawCrossHairs(bool CrossHairVisible)
 	}
 }
 
+void AMallHud::DrawHUD()
+{
+	Super::DrawHUD();
+
+	if (CrossHairTexture)
+	{
+		MainCharacter = Cast<AMallProjectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
+		if (MainCharacter->bHasWeapon1)
+		{
+			//Find the center of the canvas
+			FVector2D Canvascenter{ Canvas->ClipX * 0.5f, Canvas->ClipY * 0.5f };
+
+			//Offset the center of the centure to align with the canvas
+			FVector2D CrossHairDrawPositionCenter(Canvascenter.X - (CrossHairTexture->GetSurfaceWidth() * 0.5),
+				Canvascenter.Y - (CrossHairTexture->GetSurfaceWidth() * 0.5));
+
+			//Draw the crossHairs at the center point
+			FCanvasTileItem TileItem(CrossHairDrawPositionCenter, CrossHairTexture->Resource, FLinearColor::White);
+			TileItem.BlendMode = SE_BLEND_Translucent;
+			Canvas->DrawItem(TileItem);
+		}
+
+	}
+}
+
 /*
 void AMallHud::DrawHUD()
 {
-
-	Super::DrawHUD();
+	
 	//ReceiveDrawHUD()
 	DrawCrossHairs(true);
 }

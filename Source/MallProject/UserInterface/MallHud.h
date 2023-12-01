@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/HUD.h"
+#include "Engine/Canvas.h" 
 #include "MallHud.generated.h"
 
 /**
@@ -39,14 +40,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	TSubclassOf<class UWeaponAndCrossHairDisplay> OverlayHudClass;
 
+	
+
 
 	//==================================================================//
 	// Functions	
 	//==================================================================//
 
 	AMallHud(const FObjectInitializer& ObjectInitializer);
-
-
 
 	void DisplayMenu();
 	void HideMenu();
@@ -62,12 +63,17 @@ public:
 
 	//Testing for the overlayDisplay//
 	//------------------------------//
+	
+	class  AMallProjectCharacter* MainCharacter;
+
 	bool CrossHairDraw;
 	void DrawCrossHairs(bool CrossHairVisible);
+
 	UPROPERTY(EditDefaultsOnly, Category = "Widgets")
 	class UTexture* CrossHairTexture;
 
-	//virtual void DrawHUD() override;
+
+	virtual void DrawHUD() override;
 
 protected:
 

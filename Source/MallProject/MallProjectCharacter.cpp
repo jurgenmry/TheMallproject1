@@ -181,6 +181,7 @@ void AMallProjectCharacter::Tick(float DeltaSeconds)
 	TraceForItems();
 	CameraZoomForAiming(DeltaSeconds);
 	SetLookUpRates(DeltaSeconds); //change look sensitivity base on aiming
+	CalculateCrossHairSpread(DeltaSeconds); //Calculate CrossHairSpreed Multiplier
 	
 }
 
@@ -235,6 +236,20 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		//EnhancedInputComponent->BindAction(WalkieTalkieAction, ETriggerEvent::Ongoing, this, &AMallProjectCharacter::WalkieTalkieButtonHold);
 		EnhancedInputComponent->BindAction(WalkieTalkieAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::WalkieTalkieButtonReleased);
 	}
+}
+
+void AMallProjectCharacter::CalculateCrossHairSpread(float DeltaTime)
+{
+	//create a vector with the velocity of the character
+	FVector2D WalkSpeedRange{ 0.0f, 200.0f };
+	//Define a range from 0 to 1
+	FVector2D VelocityMultiplierRange{ 0.0f, 1.0f };
+	FVector Velocity{ GetVelocity() };
+	Velocity.Z = 0.0f;
+
+	CrossHairVelocityFactor = FMath::GetMappedRangeValueClamped(WalkSpeedRange, VelocityMultiplierRange, Velocity.Size());
+
+	CrossHairSpreedMultiplier = 0.5f + CrossHairVelocityFactor;
 }
 
 void AMallProjectCharacter::Move(const FInputActionValue& Value)

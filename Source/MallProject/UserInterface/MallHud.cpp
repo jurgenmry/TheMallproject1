@@ -49,8 +49,8 @@ void AMallHud::BeginPlay()
 	HudOverlayWidget->AddToViewport();
 	HudOverlayWidget->SetVisibility(ESlateVisibility::Visible);
 
-	MainCharacter = Cast<AMallProjectCharacter>(GetWorld()->GetFirstPlayerController());
-	//if (!ensure(MainCharacter != NULL)) return;
+	MainCharacter = Cast<AMallProjectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (!ensure(MainCharacter != NULL)) return;
 
 	//test Place 
 	//this->DrawHUD();

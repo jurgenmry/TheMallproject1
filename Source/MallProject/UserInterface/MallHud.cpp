@@ -15,6 +15,10 @@
 #include "MallProject/UserInterface/WeaponAndCrossHairDisplay.h"
 #include "MallProject/MallProjectCharacter.h"
 
+//For testing
+#include "Blueprint/UserWidget.h"
+
+
 AMallHud::AMallHud(const FObjectInitializer& ObjectInitializer)
 	:Super(ObjectInitializer)
 {
@@ -25,7 +29,7 @@ void AMallHud::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CrossHairDraw = true;
+	//CrossHairDraw = true;
 
 	MainMenuWidget = CreateWidget<UMainMenu>(GetWorld(), MainMenuClass);
 	if (!ensure(MainMenuClass != NULL)) return;
@@ -49,13 +53,20 @@ void AMallHud::BeginPlay()
 	HudOverlayWidget->AddToViewport();
 	HudOverlayWidget->SetVisibility(ESlateVisibility::Visible);
 
-	MainCharacter = Cast<AMallProjectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	if (!ensure(MainCharacter != NULL)) return;
+	//MainCharacter = Cast<AMallProjectCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	//if (!ensure(MainCharacter != NULL)) return;
 
 	//test Place 
 	//this->DrawHUD();
 	//DrawCrossHairs(true);
 
+
+	//For testing the AMMO
+	//AmmoClassWidget = CreateWidget<UUserWidget>(GetWorld(), AmmoClass);
+	//if (!ensure(AmmoClass != NULL)) return;
+	//AmmoClassWidget->AddToViewport();
+	//AmmoClassWidget->SetVisibility(ESlateVisibility::Visible);
+	
 }
 
 
@@ -138,6 +149,7 @@ void AMallHud::HideInteractionWidget() const
 	}
 }
 
+/*
 void AMallHud::DrawCrossHairs(bool CrossHairVisible)
 {
 	if (CrossHairVisible)
@@ -175,7 +187,7 @@ void AMallHud::DrawHUD()
 
 	}
 }
-
+*/
 /*
 void AMallHud::DrawHUD()
 {

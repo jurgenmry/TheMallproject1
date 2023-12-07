@@ -48,4 +48,27 @@ public:
 	virtual void BeginInteract() override;
 
 	virtual void EndInteract() override;
+
+	/*Called from the character when firing a weapon*/
+	void DecrementAmmo();
+
+	/******************* Getters *******************/
+	/***********************************************/
+
+	FORCEINLINE int32 GetAmmoCount() const { return AmmoCount; }
+
+	/******************* Setters *******************/
+	/***********************************************/
+
+
+
+private: 
+
+	//================================================================================//
+	// Variables & Properties
+	//================================================================================//
+
+	//Ammo count for this weapon
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	int32 AmmoCount;
 };

@@ -11,6 +11,7 @@
 //Custome includes
 
 AWeaponInteractableActor::AWeaponInteractableActor()
+	: AmmoCount(0)
 {
 	//WeaponComps = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComps"));
 	WeaponType = EWeaponType::Pistol;
@@ -58,4 +59,16 @@ void AWeaponInteractableActor::BeginInteract()
 void AWeaponInteractableActor::EndInteract()
 {
 	//
+}
+
+void AWeaponInteractableActor::DecrementAmmo()
+{
+	if (AmmoCount - 1 <= 0 )
+	{
+		AmmoCount = 0;
+	}
+	else
+	{
+		--AmmoCount;
+	}
 }

@@ -54,6 +54,11 @@ AMallProjectCharacter::AMallProjectCharacter()
 	/* Weapon Amunitions */
 	, Starting9mmAmmo(50)
 	, Starting_AR_Ammo(120)
+
+	/* fire weapon varaibles*/
+	, bFireButtonPressed(false)
+	, bShouldFire(true)
+	, AutomaticFireRate(0.5) 
 {
 	
 	// Set size for collision capsule
@@ -219,7 +224,8 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		EnhancedInputComponent->BindAction(JogAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::EndJogging);
 
 		//Fire
-		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::FireWeapon);
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::FireButtonPressed);
+		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::FireButtonReleased);
 
 		//adding weapon1
 		EnhancedInputComponent->BindAction(ChooseWeapon1Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::SetHasWeapon1);
@@ -279,6 +285,46 @@ void AMallProjectCharacter::Look(const FInputActionValue& Value)
 		AddControllerYawInput(LookAxisVector.X * CurrentRateX); //Original
 		AddControllerPitchInput(LookAxisVector.Y * CurrentRateY);
 	}
+}
+
+void AMallProjectCharacter::FireButtonPressed()
+{
+	bFireButtonPressed = true;
+	if (WeaponHasAmmo())
+	{
+		StartFireTimer();
+	}
+	
+}
+
+void AMallProjectCharacter::FireButtonReleased()
+{
+	bFireButtonPressed = false;
+}
+
+void AMallProjectCharacter::StartFireTimer()
+{
+	if (bShouldFire)
+	{
+		FireWeapon();
+		bShouldFire = false;
+		GetWorldTimerManager().SetTimer(
+			AutoFireTimer, this, &AMallProjectCharacter::AutoFireReset,
+			AutomaticFireRate);
+	}
+}
+
+void AMallProjectCharacter::AutoFireReset()
+{
+	if (WeaponHasAmmo())
+	{
+		bShouldFire = true;
+		if (bFireButtonPressed)
+		{
+			StartFireTimer();
+		}
+	}
+
 }
 
 void AMallProjectCharacter::SetLookUpRates(float DeltaTime)
@@ -529,25 +575,30 @@ bool AMallProjectCharacter::PerformTrace(FHitResult& OutHitResult, FVector& OutH
 
 void AMallProjectCharacter::FireWeapon()
 {
+	if (EquippedWeapon == nullptr) return;
+
+	//Everything else;
+	//Neeed to check this code
+
 	if (FireSound)
 	{
 		UGameplayStatics::PlaySound2D(this, FireSound);
 	}
 
 	//So far will not work because the socket should be in the weapon not in the character.
-	const USkeletalMeshSocket* BarrelSocket = GetMesh()->GetSocketByName(TEXT("BarrelSocket"));
+	const USkeletalMeshSocket* BarrelSocket = EquippedWeapon ->GetItemSkeleton()->GetSocketByName(TEXT("BarrelSocket"));
 
 	if (BarrelSocket)
 	{
-		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(GetMesh());
+		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(EquippedWeapon->GetItemSkeleton());
 		if (WeaponMuzzleFlash)
-		{
+		{	
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WeaponMuzzleFlash, SocketTransform);
 		}
 
 		FVector BeamEnd;
-		bool bBeamEnd = GetBeamEndLocation(SocketTransform.GetLocation(),BeamEnd);
-		
+		bool bBeamEnd = GetBeamEndLocation(SocketTransform.GetLocation(), BeamEnd);
+
 		if (bBeamEnd)
 		{
 			if (ImpactParticle)
@@ -573,6 +624,12 @@ void AMallProjectCharacter::FireWeapon()
 	{
 		AnimIntance->Montage_Play(HipFire);
 		AnimIntance->Montage_JumpToSection(FName("Fire"));
+	}
+
+	if (EquippedWeapon)
+	{   
+		//Substract one from the weapon ammo;
+		EquippedWeapon->DecrementAmmo();
 	}
 }
 
@@ -945,4 +1002,15 @@ void AMallProjectCharacter::InitializedAmmoMap()
 {
 	AmmoMap.Add(EAmmoType::E9_mm, Starting9mmAmmo);
 	AmmoMap.Add(EAmmoType::AR, Starting_AR_Ammo);
+}
+
+
+bool AMallProjectCharacter::WeaponHasAmmo()
+{
+	if (EquippedWeapon == nullptr)
+	{
+		return false;
+	}
+	
+	return EquippedWeapon->GetAmmoCount() > 0;
 }

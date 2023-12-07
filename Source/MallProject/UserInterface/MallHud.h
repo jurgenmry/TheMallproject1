@@ -64,6 +64,7 @@ public:
 	//Testing for the overlayDisplay//
 	//------------------------------//
 	
+	/*
 	class  AMallProjectCharacter* MainCharacter;
 
 	bool CrossHairDraw;
@@ -74,6 +75,16 @@ public:
 
 
 	virtual void DrawHUD() override;
+
+	*/
+
+	//For testing the ammo
+
+	//UPROPERTY(EditDefaultsOnly, Category = "Widgets")
+	//TSubclassOf<class UUserWidget> AmmoClass;
+
+	//UPROPERTY()
+	//UUserWidget* AmmoClassWidget;
 
 protected:
 

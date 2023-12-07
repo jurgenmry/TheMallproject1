@@ -46,6 +46,16 @@ enum class EAmmoType : uint8
 	Other UMETA(DisplayName = "Other Ammo") // This is for doors and others
 };
 
+UENUM(BlueprintType)
+enum class ECombatState : uint8
+{
+	ECS_Unnocupied UMETA(DisplayName = "Unnocupied"),
+	ECS_FireTimerInProgress UMETA(DisplayName = "FireTimerInProgress"),
+	ECS_Reloading UMETA(DisplayName = "Reloading"),
+
+	ECS_MAX UMETA(DisplayName = "Default Max")
+};
+
 
 class UInputComponent;
 class USkeletalMeshComponent;
@@ -126,6 +136,18 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "CrossHair")
 	float CrossHairShootingfactor;
+
+	/* Left mouse button or console trigger pressed */
+	bool bFireButtonPressed;
+
+	/* true when we can fire, false  when waiting for timer*/
+	bool bShouldFire;
+
+	/* Rate of aumatic gun fire (seconds to pass between bullets)*/
+	float AutomaticFireRate;
+
+	/* Sets A timer Beetween gunshots */
+	FTimerHandle AutoFireTimer;
 
 	FInteractionData InteractionData;
 
@@ -249,6 +271,12 @@ public:
 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+
+	void FireButtonPressed();
+	void FireButtonReleased();
+	void StartFireTimer();
+	UFUNCTION()
+	void AutoFireReset();
 
 	void SetLookUpRates(float DeltaTime);
 
@@ -375,6 +403,14 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	int32 Starting_AR_Ammo;
 
+	// Currently Equiped Weapon;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	class AWeaponInteractableActor* EquippedWeapon;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	ECombatState CombatState;
+
+
 	//================================================================================//
 	// FUNCTIONS
 	//================================================================================//
@@ -390,10 +426,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Interaction")
 	TScriptInterface<IInteractInterface> TargetInteractable;
-
-	// Currently Equiped Weapon;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly,  Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	class AWeaponInteractableActor* EquippedWeapon;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AWeaponInteractableActor>DefaultWeaponClass;
@@ -409,6 +441,9 @@ protected:
 
 	/* Initiliaze ammo map  with ammo values*/
 	void InitializedAmmoMap();
+
+	/* check if the current Weapon has ammo*/
+	bool WeaponHasAmmo();
 
 	void SpawnDefaultWeapon(); // We will start without default weapon
 	

@@ -4,19 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "MallProject/Interactables/InteractableActor.h"
+#include "MallProject/AmmoType.h"
 #include "WeaponInteractableActor.generated.h"
 
 /**
  * 
  */
-UENUM()
+UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
 	Pistol UMETA(DisplayName = "Pistol"),
-	Rifle UMETA(DisplayName = "Rifle"), //Technically weapon is pickup
+	Rifle UMETA(DisplayName = "Rifle"), 
 	Shotgun UMETA(DisplayName = "Shotgun"),
-	Melee UMETA(DisplayName = "Melee"), //Windows, doors, etc
-	SuperLamp UMETA(DisplayName = "SuperLamp"), //Buttons, Switch, Leaver, Use to active devices
+	Melee UMETA(DisplayName = "Melee"),			
+	SuperLamp UMETA(DisplayName = "SuperLamp"), 
 	Other UMETA(DisplayName = "Other")
 };
 
@@ -37,6 +38,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	EWeaponType WeaponType;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	EAmmoType AmmoType;
+
+	//Fname for the reload Montage section
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	FName ReloadMontageSection;
+
 	//================================================================================//
 	// FUNCTIONS
 	//================================================================================//
@@ -52,10 +60,16 @@ public:
 	/*Called from the character when firing a weapon*/
 	void DecrementAmmo();
 
+	void ReloadAmmo(int32 Ammount);
+
 	/******************* Getters *******************/
 	/***********************************************/
 
 	FORCEINLINE int32 GetAmmoCount() const { return AmmoCount; }
+	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType;  }
+	FORCEINLINE FName GetReloadMontageSection() const { return ReloadMontageSection; }
+	FORCEINLINE int32 GetMagazineCapacity() const { return MagazineCapacity;  }
 
 	/******************* Setters *******************/
 	/***********************************************/
@@ -71,4 +85,8 @@ private:
 	//Ammo count for this weapon
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
 	int32 AmmoCount;
+
+	//Maximun ammo our weapon can hold
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	int32 MagazineCapacity;
 };

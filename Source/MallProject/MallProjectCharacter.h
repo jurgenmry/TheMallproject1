@@ -7,6 +7,7 @@
 #include "GameFramework/Character.h"
 #include "MallProject/Interfaces/InteractInterface.h"
 #include "InputActionValue.h"
+#include "MallProject/AmmoType.h"
 #include "MallProjectCharacter.generated.h"
 
 
@@ -36,15 +37,6 @@ struct FInteractionData
 	bool bIsInteracting;
 };
 
-UENUM(BlueprintType)
-enum class EAmmoType : uint8
-{
-	E9_mm UMETA(DisplayName = "9mm"),
-	AR UMETA(DisplayName = "Assault Rifle"),
-	Shootgun UMETA(DisplayName = "Shotgun"),
-	LightBatteries UMETA(DisplayName = "Bateries"),
-	Other UMETA(DisplayName = "Other Ammo") // This is for doors and others
-};
 
 UENUM(BlueprintType)
 enum class ECombatState : uint8
@@ -251,6 +243,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* WalkieTalkieAction;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ReloadAction;
+
+
 
 	//================================================================================//
 	// FUNCTIONS
@@ -272,24 +268,35 @@ public:
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 
+	//** fire Weapon Functions **//
 	void FireButtonPressed();
 	void FireButtonReleased();
 	void StartFireTimer();
 	UFUNCTION()
 	void AutoFireReset();
+	void FireWeapon();
+
 
 	void SetLookUpRates(float DeltaTime);
 
 	void StartJogging();
 	void EndJogging();
 
-
+	//** Aiming Weapon Functions **//
 	void AimingButtonPressed();
 	void AimingButtonReleaded();
 	void CameraZoomForAiming(float DeltaTime);
 
-	void FireWeapon();
+	
+	//** Reloading Weapon Functions **//
+	void ReloadButtonPressed();
+	UFUNCTION()
+	void ReloadWeapon();
+	UFUNCTION(BlueprintCallable)
+	void FinishReloading();
+	bool CarryingAmmo(); // Check to see if we have ammo of the equipped weapon
 
+	//** Talkie Walkie Talkie Functions **//
 	void TalkWalkieTalkie();
 	void WalkieTalkieButtonPressed();
 	void WalkieTalkieButtonReleased();
@@ -392,6 +399,10 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* WalkieTalkieAnimation;
 
+	/* Montage for reload animation */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	UAnimMontage* ReloadMontage;
+
 	//Map to Keep Track of ammo of different weapons
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	TMap<EAmmoType, int32> AmmoMap;
@@ -438,6 +449,13 @@ protected:
 	// FUNCTIONS
 	//================================================================================//
 
+	/* Functions for the shooting */
+
+	void PlayFireSound();
+
+	void SendBullet();
+
+	void PlayFireMontage();
 
 	/* Initiliaze ammo map  with ammo values*/
 	void InitializedAmmoMap();

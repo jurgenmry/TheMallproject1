@@ -11,7 +11,11 @@
 //Custome includes
 
 AWeaponInteractableActor::AWeaponInteractableActor()
-	: AmmoCount(0)
+	: AmmoCount(10)
+	, WeaponType(EWeaponType::Pistol)
+	, AmmoType(EAmmoType::E9_mm)
+	, MagazineCapacity(10)
+	, ReloadMontageSection(FName(TEXT("Reload_Pistol")))
 {
 	//WeaponComps = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComps"));
 	WeaponType = EWeaponType::Pistol;
@@ -71,4 +75,10 @@ void AWeaponInteractableActor::DecrementAmmo()
 	{
 		--AmmoCount;
 	}
+}
+
+void AWeaponInteractableActor::ReloadAmmo(int32 Ammount)
+{
+
+	AmmoCount += Ammount;
 }

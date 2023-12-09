@@ -58,7 +58,10 @@ AMallProjectCharacter::AMallProjectCharacter()
 	/* fire weapon varaibles*/
 	, bFireButtonPressed(false)
 	, bShouldFire(true)
-	, AutomaticFireRate(0.5) 
+	, AutomaticFireRate(0.5)
+
+	/* combar variables */
+	, CombatState(ECombatState::ECS_Unnocupied)
 {
 	
 	// Set size for collision capsule
@@ -227,6 +230,10 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::FireButtonPressed);
 		EnhancedInputComponent->BindAction(FireAction, ETriggerEvent::Completed, this, &AMallProjectCharacter::FireButtonReleased);
 
+		//Reloading
+		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::ReloadButtonPressed);
+
+
 		//adding weapon1
 		EnhancedInputComponent->BindAction(ChooseWeapon1Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::SetHasWeapon1);
 
@@ -290,11 +297,8 @@ void AMallProjectCharacter::Look(const FInputActionValue& Value)
 void AMallProjectCharacter::FireButtonPressed()
 {
 	bFireButtonPressed = true;
-	if (WeaponHasAmmo())
-	{
-		StartFireTimer();
-	}
-	
+
+	FireWeapon();
 }
 
 void AMallProjectCharacter::FireButtonReleased()
@@ -304,27 +308,28 @@ void AMallProjectCharacter::FireButtonReleased()
 
 void AMallProjectCharacter::StartFireTimer()
 {
-	if (bShouldFire)
-	{
-		FireWeapon();
-		bShouldFire = false;
-		GetWorldTimerManager().SetTimer(
-			AutoFireTimer, this, &AMallProjectCharacter::AutoFireReset,
-			AutomaticFireRate);
-	}
+	CombatState = ECombatState::ECS_FireTimerInProgress;
+
+	GetWorldTimerManager().SetTimer(
+		AutoFireTimer, this, &AMallProjectCharacter::AutoFireReset,
+		AutomaticFireRate);
 }
 
 void AMallProjectCharacter::AutoFireReset()
 {
+	CombatState = ECombatState::ECS_Unnocupied;
 	if (WeaponHasAmmo())
 	{
-		bShouldFire = true;
 		if (bFireButtonPressed)
 		{
-			StartFireTimer();
+			FireWeapon();
+		}
+		else
+		{
+			//Reload The weapon
+			ReloadWeapon();
 		}
 	}
-
 }
 
 void AMallProjectCharacter::SetLookUpRates(float DeltaTime)
@@ -573,26 +578,81 @@ bool AMallProjectCharacter::PerformTrace(FHitResult& OutHitResult, FVector& OutH
 	return false;
 }
 
+bool AMallProjectCharacter::GetBeamEndLocation(
+	const FVector& MuzzleSocketLocation,
+	FVector& OutBeamLocation)
+{
+
+	//Check for croshairTraceHit;
+	FHitResult CrosshairHitResult;
+	bool bCrossHairHit = PerformTrace(CrosshairHitResult, OutBeamLocation);
+
+	if (bCrossHairHit)
+	{
+		// Tentative beam location - Still need to check  from the gun 
+		OutBeamLocation = CrosshairHitResult.Location;
+	}
+	else // No crosshair hit
+	{
+		//OutBeamLocation is the end location for the line trace
+	}
+
+	//Perform a second trace, this time for the gun barrel 
+	FHitResult WeaponTraceHit;
+	const FVector WeaponTraceStart{ MuzzleSocketLocation };
+	const FVector StartToEnd{ OutBeamLocation - MuzzleSocketLocation };
+	const FVector WeaponTraceEnd{ MuzzleSocketLocation + StartToEnd * 1.25f };
+
+	GetWorld()->LineTraceSingleByChannel(
+		WeaponTraceHit,
+		WeaponTraceStart,
+		WeaponTraceEnd,
+		ECollisionChannel::ECC_Visibility);
+
+	if (WeaponTraceHit.bBlockingHit) //Object Bewtween the barrel and the beam end point
+	{
+		OutBeamLocation = WeaponTraceHit.Location;
+		return true;
+	}
+	return false;
+}
+
+
+//Actual job of firing the weapon and its effects
 void AMallProjectCharacter::FireWeapon()
 {
 	if (EquippedWeapon == nullptr) return;
+	
+	if (CombatState != ECombatState::ECS_Unnocupied) return;
 
-	//Everything else;
-	//Neeed to check this code
+	if (WeaponHasAmmo())
+	{
+		PlayFireSound();     //PlayFire Sound
+		SendBullet();        //Send bullet
+		PlayFireMontage();   //Play Hit Fire Montage
+		EquippedWeapon->DecrementAmmo(); //Substract one from the weapon ammo;
+		StartFireTimer();
+	}
+}
 
+void AMallProjectCharacter::PlayFireSound()
+{
 	if (FireSound)
 	{
 		UGameplayStatics::PlaySound2D(this, FireSound);
 	}
+}
 
+void AMallProjectCharacter::SendBullet()
+{
 	//So far will not work because the socket should be in the weapon not in the character.
-	const USkeletalMeshSocket* BarrelSocket = EquippedWeapon ->GetItemSkeleton()->GetSocketByName(TEXT("BarrelSocket"));
+	const USkeletalMeshSocket* BarrelSocket = EquippedWeapon->GetItemSkeleton()->GetSocketByName(TEXT("BarrelSocket"));
 
 	if (BarrelSocket)
 	{
 		const FTransform SocketTransform = BarrelSocket->GetSocketTransform(EquippedWeapon->GetItemSkeleton());
 		if (WeaponMuzzleFlash)
-		{	
+		{
 			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), WeaponMuzzleFlash, SocketTransform);
 		}
 
@@ -619,19 +679,21 @@ void AMallProjectCharacter::FireWeapon()
 			}
 		}
 	}
+}
+
+void AMallProjectCharacter::PlayFireMontage()
+{
+	//Play Hit Fire Montage
 	UAnimInstance* AnimIntance = GetMesh1P()->GetAnimInstance();
 	if (AnimIntance && HipFire)
 	{
 		AnimIntance->Montage_Play(HipFire);
 		AnimIntance->Montage_JumpToSection(FName("Fire"));
 	}
-
-	if (EquippedWeapon)
-	{   
-		//Substract one from the weapon ammo;
-		EquippedWeapon->DecrementAmmo();
-	}
 }
+
+
+// This code has to do with the walkie talkie 
 
 void AMallProjectCharacter::TalkWalkieTalkie()
 {
@@ -680,46 +742,76 @@ void AMallProjectCharacter::WalkieTalkieButtonHold()
 	}
 }
 
-bool AMallProjectCharacter::GetBeamEndLocation(
-	const FVector& MuzzleSocketLocation,
-	FVector& OutBeamLocation)
+
+// This code is for reloading
+
+void AMallProjectCharacter::ReloadButtonPressed()
 {
+	ReloadWeapon();
+}
+void AMallProjectCharacter::ReloadWeapon()
+{
+	if (CombatState != ECombatState::ECS_Unnocupied) return;
+	if (EquippedWeapon == nullptr) return;
 
-	//Check for croshairTraceHit;
-	FHitResult CrosshairHitResult;
-	bool bCrossHairHit = PerformTrace(CrosshairHitResult, OutBeamLocation);
-
-	if (bCrossHairHit)
+	if (CarryingAmmo())
 	{
-		// Tentative beam location - Still need to check  from the gun 
-		OutBeamLocation = CrosshairHitResult.Location;
+		CombatState = ECombatState::ECS_Reloading;
+		UAnimInstance* AnimInstance = GetMesh1P()->GetAnimInstance();
+		if (AnimInstance && ReloadMontage)
+		{
+			AnimInstance->Montage_Play(ReloadMontage);
+			AnimInstance->Montage_JumpToSection(
+				EquippedWeapon->GetReloadMontageSection());
+		}
 	}
-	else // No crosshair hit
+}
+void AMallProjectCharacter::FinishReloading()
+{
+	CombatState = ECombatState::ECS_Unnocupied;
+	//Update the ammo Map
+	if (EquippedWeapon == nullptr) return;
+
+	const auto AmmoType{ EquippedWeapon->GetAmmoType() };
+
+	if (AmmoMap.Contains(EquippedWeapon->GetAmmoType()))
 	{
-		//OutBeamLocation is the end location for the line trace
+		//Ammount of ammo the character is carrying of the equipped weapon Type
+		int32 CarriedAmmo = AmmoMap[EquippedWeapon->GetAmmoType()];
+
+		//Space left in the magazine of squipped weapon;
+		const int32 MagEmptySpace = EquippedWeapon->GetMagazineCapacity() 
+			- EquippedWeapon->GetAmmoCount();
+
+		//Reload the magazine with all the ammo we are carrying
+		if (MagEmptySpace > CarriedAmmo)
+		{
+			EquippedWeapon->ReloadAmmo(CarriedAmmo);
+			CarriedAmmo = 0; 
+			AmmoMap.Add(AmmoType, CarriedAmmo);
+		}
+		// fill in the magazine 
+		else
+		{
+			EquippedWeapon->ReloadAmmo(MagEmptySpace);
+			CarriedAmmo -= MagEmptySpace;
+			AmmoMap.Add(AmmoType, CarriedAmmo);
+		}
 	}
+}
 
-	//Perform a second trace, this time for the gun barrel 
-	FHitResult WeaponTraceHit;
-	const FVector WeaponTraceStart{ MuzzleSocketLocation };
-	const FVector StartToEnd{ OutBeamLocation - MuzzleSocketLocation };
-	const FVector WeaponTraceEnd{ MuzzleSocketLocation + StartToEnd * 1.25f };
+bool AMallProjectCharacter::CarryingAmmo()
+{
+	if (EquippedWeapon == nullptr) return false; 
 
-	GetWorld()->LineTraceSingleByChannel(
-		WeaponTraceHit,
-		WeaponTraceStart,
-		WeaponTraceEnd,
-		ECollisionChannel::ECC_Visibility);
+	auto AmmoType = EquippedWeapon->GetAmmoType();
 
-	if (WeaponTraceHit.bBlockingHit) //Object Bewtween the barrel and the beam end point
+	if (AmmoMap.Contains(AmmoType))
 	{
-		OutBeamLocation = WeaponTraceHit.Location;
-		return true;
+		return AmmoMap[AmmoType] > 0;
 	}
 	return false;
 }
-
-
 
 
 /// 

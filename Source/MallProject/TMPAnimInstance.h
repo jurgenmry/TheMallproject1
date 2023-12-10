@@ -80,6 +80,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bWalkieTalkie;
 
+
+
 	//================================================================================//
 	// FUNCTIONS
 	//================================================================================//

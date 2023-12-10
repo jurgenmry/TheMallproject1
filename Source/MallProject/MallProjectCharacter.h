@@ -370,6 +370,7 @@ public:
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 
+
 private:
 
 	//================================================================================//
@@ -422,11 +423,13 @@ private:
 	ECombatState CombatState;
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	class UWidgetComponent* AmmoWidget;
+
 	//================================================================================//
 	// FUNCTIONS
 	//================================================================================//
 
-	
 
 protected:
 	

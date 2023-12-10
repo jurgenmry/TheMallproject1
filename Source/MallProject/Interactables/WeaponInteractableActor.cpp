@@ -11,7 +11,7 @@
 //Custome includes
 
 AWeaponInteractableActor::AWeaponInteractableActor()
-	: AmmoCount(10)
+	: AmmoCount(0)
 	, WeaponType(EWeaponType::Pistol)
 	, AmmoType(EAmmoType::E9_mm)
 	, MagazineCapacity(10)

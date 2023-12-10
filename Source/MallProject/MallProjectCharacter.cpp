@@ -21,6 +21,8 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "Math/UnrealMathUtility.h"
 #include "Runtime/CinematicCamera/Public/CineCameraComponent.h"
+#include "Components/WidgetComponent.h"
+
 //#include "CineCameraComponent.h"
 
 //Custome Includes
@@ -145,6 +147,10 @@ AMallProjectCharacter::AMallProjectCharacter()
 	FlashLight = CreateDefaultSubobject<USpotLightComponent>(TEXT("FlashLight"));
 	FlashLight->SetupAttachment(LightSpringArm);
 	FlashLight->SetVisibility(true);
+
+	//Create The widget for the ammmo count
+	AmmoWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("AmmoWidget"));
+	AmmoWidget->SetupAttachment(GetMesh1P(), FName("GunRightHandSocket"));
 	
 }
 
@@ -324,11 +330,14 @@ void AMallProjectCharacter::AutoFireReset()
 		{
 			FireWeapon();
 		}
-		else
+
+		/*
+		if(!CarryingAmmo() && !bFireButtonPressed)
 		{
 			//Reload The weapon
 			ReloadWeapon();
 		}
+		*/
 	}
 }
 
@@ -745,11 +754,7 @@ void AMallProjectCharacter::WalkieTalkieButtonHold()
 
 // This code is for reloading
 
-void AMallProjectCharacter::ReloadButtonPressed()
-{
-	ReloadWeapon();
-}
-void AMallProjectCharacter::ReloadWeapon()
+ void AMallProjectCharacter::ReloadWeapon()
 {
 	if (CombatState != ECombatState::ECS_Unnocupied) return;
 	if (EquippedWeapon == nullptr) return;
@@ -769,17 +774,18 @@ void AMallProjectCharacter::ReloadWeapon()
 void AMallProjectCharacter::FinishReloading()
 {
 	CombatState = ECombatState::ECS_Unnocupied;
-	//Update the ammo Map
+
 	if (EquippedWeapon == nullptr) return;
 
+	//Update the ammo Map
 	const auto AmmoType{ EquippedWeapon->GetAmmoType() };
 
-	if (AmmoMap.Contains(EquippedWeapon->GetAmmoType()))
+	if (AmmoMap.Contains(AmmoType))
 	{
 		//Ammount of ammo the character is carrying of the equipped weapon Type
-		int32 CarriedAmmo = AmmoMap[EquippedWeapon->GetAmmoType()];
+		int32 CarriedAmmo = AmmoMap[AmmoType];
 
-		//Space left in the magazine of squipped weapon;
+		//Space left in the magazine of Equipped weapon;
 		const int32 MagEmptySpace = EquippedWeapon->GetMagazineCapacity() 
 			- EquippedWeapon->GetAmmoCount();
 
@@ -790,6 +796,7 @@ void AMallProjectCharacter::FinishReloading()
 			CarriedAmmo = 0; 
 			AmmoMap.Add(AmmoType, CarriedAmmo);
 		}
+
 		// fill in the magazine 
 		else
 		{
@@ -799,12 +806,15 @@ void AMallProjectCharacter::FinishReloading()
 		}
 	}
 }
-
+void AMallProjectCharacter::ReloadButtonPressed()
+{
+	ReloadWeapon();
+}
 bool AMallProjectCharacter::CarryingAmmo()
 {
 	if (EquippedWeapon == nullptr) return false; 
 
-	auto AmmoType = EquippedWeapon->GetAmmoType();
+	EAmmoType AmmoType = EquippedWeapon->GetAmmoType();
 
 	if (AmmoMap.Contains(AmmoType))
 	{

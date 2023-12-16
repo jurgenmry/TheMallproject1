@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "MallProject/Interactables/InteractableActor.h"
+#include "MallProject/AmmoType.h"
 #include "AmmoInteractable.generated.h"
 
 /**
@@ -26,10 +27,26 @@ public:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
+
+	/**** Getters ****/
 	
+	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }
+	FORCEINLINE int32 GetItemCount() const { return ItemCount; }
+
+	/**** Setters ****/
 
 private:
 
+	//================================================================================//
+	// Variables
+	//================================================================================//
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Ammo", meta = (AllowPrivateAccess = "true"))
+	int32 ItemCount;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "Ammo", meta = (AllowPrivateAccess = "true"))
+	EAmmoType AmmoType;
 
 protected:
 

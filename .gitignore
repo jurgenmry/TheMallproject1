@@ -55,3 +55,5 @@ Content/_Game/Blueprints/Actors/characters/FoodStoreCharacter/Talking1Talking_An
 Content/_Game/Blueprints/Actors/characters/FoodStoreCharacter/TalkingLessSpeed.uasset
 Content/MetaHumans/Mall2/Face/Mall2_FaceMesh.uasset
 Content/MetaHumans/MallC1/Face/MallC1_FaceMesh.uasset
+Content/_Game/Blueprints/Actors/_Game_Characters/FoodStoreCharacter/TalkingLessSpeed.uasset
+Content/_Game/Blueprints/Actors/_Game_Characters/FoodStoreCharacter/Talking1Talking_Anim_mixamo_com.uasset

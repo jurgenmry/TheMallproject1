@@ -87,7 +87,9 @@ public:
 	FORCEINLINE USoundCue* GetEquippedSound() const { return EquippedSound; }
 
 	//Setters
-
+	FORCEINLINE void SetPickUpSound(USoundCue* Sound) { PickupSound = Sound; }
+	FORCEINLINE void SetEquipUpSound(USoundCue* Sound) { EquippedSound = Sound; }
+	
 
 protected:
 	

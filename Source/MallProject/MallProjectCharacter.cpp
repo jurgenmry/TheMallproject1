@@ -53,9 +53,6 @@ AMallProjectCharacter::AMallProjectCharacter()
 	, BaseLookUpRateXAiming(0.2f)
 	, BaseLookUpRateYAiming(0.2f)
 
-	/* Weapon Amunitions */
-	, Starting9mmAmmo(50)
-	, Starting_AR_Ammo(120)
 
 	/* fire weapon varaibles*/
 	, bFireButtonPressed(false)
@@ -63,7 +60,11 @@ AMallProjectCharacter::AMallProjectCharacter()
 	, AutomaticFireRate(0.5)
 
 	/* combar variables */
-	, CombatState(ECombatState::ECS_Unnocupied)
+	,CombatState(ECombatState::ECS_Unnocupied)
+
+	/* Weapon Amunitions */
+	, Starting9mmAmmo(50)
+	, Starting_AR_Ammo(120)
 {
 	
 	// Set size for collision capsule
@@ -240,11 +241,12 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 		EnhancedInputComponent->BindAction(ReloadAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::ReloadButtonPressed);
 
 
-		//adding weapon1
-		EnhancedInputComponent->BindAction(ChooseWeapon1Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::SetHasWeapon1);
+		//adding Weapons 1 to 4 
+		EnhancedInputComponent->BindAction(ChooseWeapon1Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::OneKeyPressed); 
+		EnhancedInputComponent->BindAction(ChooseWeapon2Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::TwoKeyPressed);
+		EnhancedInputComponent->BindAction(ChooseWeapon2Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::ThreeKeyPressed);
+		EnhancedInputComponent->BindAction(ChooseWeapon2Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::FourKeyPressed);
 
-		//adding weapon1
-		EnhancedInputComponent->BindAction(ChooseWeapon2Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::SetHasRifle);
 
 		//Aiming
 		EnhancedInputComponent->BindAction(AimingAction, ETriggerEvent::Triggered, this, &AMallProjectCharacter::AimingButtonPressed);
@@ -453,57 +455,6 @@ void AMallProjectCharacter::CameraZoomForAiming(float DeltaTime)
 	GetFPSCameraComponent()->SetFieldOfView(CurrentFOV);
 }
 
-// Need to arrange fucntions 
-
-void AMallProjectCharacter::SetHasRifle()
-{
-	if (CurrentWeapon)
-	{
-		if (!bHasRifle)
-		{
-			//Play Animation Montage
-			bHasRifle = true;
-		}
-
-		else if (bHasRifle)
-		{
-			//Play Animation Montage
-			bHasRifle = false;
-		}
-	}
-}
-
-void AMallProjectCharacter::SetHasWeapon1()
-{
-	if (CurrentWeapon && CurrentWeapon->WeaponType == EWeaponType::Pistol)
-	{
-		if (!bHasWeapon1)
-		{
-			//Play Animation Montage
-			CurrentWeapon->GetItemSkeleton()->SetVisibility(true);
-			bHasWeapon1 = true;
-
-		}
-
-		else if (bHasWeapon1)
-		{
-			//Play Animation Montage
-			CurrentWeapon->GetItemSkeleton()->SetVisibility(false);
-			bHasWeapon1 = false;
-
-		}
-	}
-}
-
-bool AMallProjectCharacter::GetHasRifle()
-{
-	return bHasRifle;
-}
-
-bool AMallProjectCharacter::GetHasWeapon1()
-{
-	return false;
-}
 
 ///  This code has to do with firing the wapon and do line traces. 
 /// 
@@ -752,6 +703,50 @@ void AMallProjectCharacter::WalkieTalkieButtonHold()
 }
 
 
+
+// code for choosing of weapons
+void AMallProjectCharacter::OneKeyPressed()
+{
+	if (!EquippedWeapon) return;
+	if (EquippedWeapon->GetSlothIndex() == 0) return;
+	ExchangeInventoryItems(EquippedWeapon->GetSlothIndex(), 0);
+}
+
+void AMallProjectCharacter::TwoKeyPressed()
+{
+	if (!EquippedWeapon) return;
+	if (EquippedWeapon->GetSlothIndex() == 1) return;
+	ExchangeInventoryItems(EquippedWeapon->GetSlothIndex(), 1);
+}
+
+void AMallProjectCharacter::ThreeKeyPressed()
+{
+	if (!EquippedWeapon) return;
+	if (EquippedWeapon->GetSlothIndex() == 2) return;
+	ExchangeInventoryItems(EquippedWeapon->GetSlothIndex(), 2);
+}
+
+void AMallProjectCharacter::FourKeyPressed()
+{
+	if (!EquippedWeapon) return;
+	if (EquippedWeapon->GetSlothIndex() == 3) return;
+	ExchangeInventoryItems(EquippedWeapon->GetSlothIndex(), 4);
+}
+
+void AMallProjectCharacter::ExchangeInventoryItems(int32 CurrentItemIndex, int32 NewItemIndex)
+{
+	if (EquippedWeapon == nullptr) return;
+	if ((CurrentItemIndex == NewItemIndex) && (NewItemIndex >= Inventory.Num())) return;
+
+	AWeaponInteractableActor* OldEquippedWeapon = EquippedWeapon;
+	AWeaponInteractableActor* NewWeapon = Cast<AWeaponInteractableActor>(Inventory[NewItemIndex]);
+
+	EquipWeapon(NewWeapon);
+	OldEquippedWeapon->SetItemState(EItemState::Item_PickedUp);
+	NewWeapon->SetItemState(EItemState::Equipped);
+}
+
+
 // This code is for reloading
 
  void AMallProjectCharacter::ReloadWeapon()
@@ -945,9 +940,22 @@ void AMallProjectCharacter::Interact()
 
 			if (EquippedWeapon)
 			{
-				EquipWeapon(EquippedWeapon);
-				HUD->HideInteractionWidget();
-				EquippedWeapon->BeginInteract();
+				if (Inventory.Num() < InventoryCapacity)
+				{
+					
+					Inventory.Add(EquippedWeapon);
+					EquippedWeapon->SeSlothIndex(Inventory.Num());
+					EquippedWeapon->SetItemState(EItemState::Item_PickedUp);
+					//EquipWeapon(EquippedWeapon);
+					HUD->HideInteractionWidget();
+					EquippedWeapon->BeginInteract();
+				}
+				else
+				{
+					//Inventory is full 
+					
+				}
+
 			}
 			else
 			{
@@ -1000,8 +1008,6 @@ void AMallProjectCharacter::EquipWeapon(AWeaponInteractableActor* WeaponToEquip)
 {
 	if(WeaponToEquip)
 	{
-		
-
 		//WeaponToEquip->SetItemState(EItemState::Equipped);
 
 		//WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
@@ -1017,16 +1023,14 @@ void AMallProjectCharacter::EquipWeapon(AWeaponInteractableActor* WeaponToEquip)
 
 			//WeaponToEquip->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::KeepRelativeTransform, FName("GunRightHandSocket"));
 
-			FString AddWeapon = "AddWeapon to Hand";
-			GEngine->AddOnScreenDebugMessage(10, 5.0f, FColor::Red, AddWeapon, 0);
+			//FString AddWeapon = "AddWeapon to Hand";
+			//GEngine->AddOnScreenDebugMessage(10, 5.0f, FColor::Red, AddWeapon, 0);
 
 			//WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			//WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			//WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 			//WeaponToEquip->GetItemSkeleton()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
-
-			bHasWeapon = true;
 			CurrentWeapon = WeaponToEquip;
 			CurrentWeapon->SetItemState(EItemState::Equipped);
 			//CharacterHasWeapon();
@@ -1040,65 +1044,6 @@ void AMallProjectCharacter::EquipWeapon(AWeaponInteractableActor* WeaponToEquip)
 }
 
 
-//Based on the type of weapon, attach the weapon to the corresponding socket
-//This needs to be checked
-void AMallProjectCharacter::UnequipWeapon(AWeaponInteractableActor* WeaponToEquip)
-{
-	/*
-	* 
-	* ////// This was supposed to be code to attach to different sockets . but took other aproach
-	* ////// of hidding the weapon mesh.
-	* 
-	* 
-	//Create USkeletal Socket to attach the weapon
-	const USkeletalMeshSocket* HipLeftSocket = GetMesh1P()->GetSocketByName(FName("HipLSocket"));
-	const USkeletalMeshSocket* ClaviculeSocket = GetMesh1P()->GetSocketByName(FName("RifleSocket")); 
-	const USkeletalMeshSocket* HipleftSocket = GetMesh1P()->GetSocketByName(FName("HipLSocket")); 
-
-	if (HipLeftSocket)
-	{
-		if (WeaponToEquip->WeaponType == EWeaponType::Pistol)
-		{
-			//FString Banana = TEXT("End Interact");
-			//GEngine->AddOnScreenDebugMessage(7, 5.0f, FColor::Red, Banana, 1);
-
-			HipLeftSocket->AttachActor(WeaponToEquip, GetMesh1P());
-
-			WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		}
-
-		CurrentWeapon = WeaponToEquip;
-	}
-
-	if (ClaviculeSocket)
-	{
-		if (WeaponToEquip->WeaponType == EWeaponType::Rifle)
-		{
-			ClaviculeSocket->AttachActor(WeaponToEquip, GetMesh1P());
-
-			WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		}
-	}
-
-	if (HipleftSocket)
-	{
-		if (WeaponToEquip->WeaponType == EWeaponType::SuperLamp)
-		{
-			HipleftSocket->AttachActor(WeaponToEquip, GetMesh1P());
-
-			WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		}
-
-	}
-	*/
-
-}
 
 /// 
 ///  This code has to do with  Weapons Ammo

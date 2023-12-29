@@ -6,6 +6,8 @@
 
 //Custome includes 
 #include "MallProjectCharacter.h"
+#include "MallProject/Interactables/WeaponInteractableActor.h"
+#include "MallProject/WeaponType.h"
 
 //Engine includes. 
 #include "GameFramework/CharacterMovementComponent.h"
@@ -69,32 +71,13 @@ void UTMPAnimInstance::UpdateAnimationProperties(float DeltaTime)
 			bWantsToRun = false;
 		}
 		
-		if (Character ->bHasWeapon)
+
+		//Check if the character has a valid equipped weapon. 
+		if (Character->GetEquippedWeapon())
 		{
-			bHasAnyweapon = true;
-
-			//For the first gun
-			if (Character->bHasWeapon1)
-			{
-				bHasWeapon1 = true;
-			}
-			else
-			{
-				bHasWeapon1 = false;
-			}
-
-			//For the second gun
-
-			if (Character->bHasRifle)
-			{
-				bHasWeapon2 = true;
-			}
-			else
-			{
-				bHasWeapon2 = false;
-			}
-
+			EquippedWeaponType = Character->GetEquippedWeapon()->GetWeaponType();
 		}
+
 
 		//bAiming = Character->GetAiming();
 

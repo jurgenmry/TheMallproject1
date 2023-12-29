@@ -10,12 +10,55 @@
 
 //Custome includes
 
+
+void AWeaponInteractableActor::OnConstruction(const FTransform& Transform)
+{
+	const FString WeaponDTPath{ TEXT("/Script/Engine.DataTable'/Game/_Game/DataTables/WeaponDT.WeaponDT'") };
+	UDataTable* WeaponTableObject = Cast<UDataTable>(StaticLoadObject(UDataTable::StaticClass(), nullptr, *WeaponDTPath));
+	if (WeaponTableObject)
+	{
+		FWeaponDataTable* WeaponDataRow = nullptr;
+
+		switch (WeaponType)
+		{
+		case EWeaponType::Pistol:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("Pistol"), TEXT(""));
+			break;
+		case EWeaponType::Rifle:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("AssaultRifle"), TEXT(""));
+			break;
+		case EWeaponType::Shotgun:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("Shotgun"), TEXT(""));
+			break;
+		case EWeaponType::Melee:
+			break;
+		case EWeaponType::SuperLamp:
+			WeaponDataRow = WeaponTableObject->FindRow<FWeaponDataTable>(FName("SuperLight"), TEXT(""));
+			break;
+		case EWeaponType::Other:
+			break;
+		default:
+			break;
+		}
+
+		if (WeaponDataRow)
+		{
+			AmmoType = WeaponDataRow->AmmoType;
+			AmmoCount = WeaponDataRow->WeaponAmmo;
+			MagazineCapacity = WeaponDataRow->MagazineCapacity;
+			SetPickUpSound(WeaponDataRow->PickUpSound);
+			SetEquipUpSound(WeaponDataRow->EquipSound);
+			GetItemSkeleton()->SetSkeletalMesh(WeaponDataRow->WeaponMesh);
+		}
+
+	}
+
+}
+
 AWeaponInteractableActor::AWeaponInteractableActor()
-	: AmmoCount(0)
-	, WeaponType(EWeaponType::Pistol)
-	, AmmoType(EAmmoType::E9_mm)
-	, MagazineCapacity(10)
-	, ReloadMontageSection(FName(TEXT("Reload_Pistol")))
+
+	: ReloadMontageSection(FName(TEXT("Reload_Pistol")))
+	, SlothIndex (0)
 {
 	//WeaponComps = CreateDefaultSubobject<UWeaponComponent>(TEXT("WeaponComps"));
 	WeaponType = EWeaponType::Pistol;
@@ -35,32 +78,6 @@ void AWeaponInteractableActor::Interact(AMallProjectCharacter* CharacterReferenc
 	//WeaponComps->AttachWeapon(CharacterReference);
 }
 
-void AWeaponInteractableActor::BeginInteract()
-{
-	//Play character animation
-	switch (WeaponType)
-	{
-	case EWeaponType::Pistol:
-		break;
-	case EWeaponType::Rifle:
-		break;
-	case EWeaponType::Shotgun:
-		break;
-	case EWeaponType::Melee:
-		break;
-	case EWeaponType::SuperLamp:
-		break;
-	case EWeaponType::Other:
-		break;
-	default:
-		break;
-	}
-}
-
-void AWeaponInteractableActor::EndInteract()
-{
-	//
-}
 
 void AWeaponInteractableActor::DecrementAmmo()
 {

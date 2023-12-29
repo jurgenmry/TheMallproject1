@@ -8,6 +8,7 @@
 #include "MallProject/Interfaces/InteractInterface.h"
 #include "InputActionValue.h"
 #include "MallProject/AmmoType.h"
+#include "MallProject/Interactables/WeaponInteractableActor.h"
 #include "MallProjectCharacter.generated.h"
 
 
@@ -169,7 +170,6 @@ public:
 	UPROPERTY(VisibleDefaultsOnly, Category = Components)
 	USkeletalMeshComponent* Face;
 
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Components, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FirstPersonCameraComponent;
 
@@ -230,6 +230,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* ChooseWeapon2Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ChooseWeapon3Action;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ChooseWeapon4Action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* FireAction;
@@ -302,6 +308,14 @@ public:
 	void WalkieTalkieButtonReleased();
 	void WalkieTalkieButtonHold();
 	
+	//changing Weapons
+	void OneKeyPressed();
+	void TwoKeyPressed();
+	void ThreeKeyPressed();
+	void FourKeyPressed();
+
+	void ExchangeInventoryItems(int32 CurrentItemIndex, int32 NewItemIndex);
+
 
 	void ToggleMenu();
 
@@ -336,28 +350,19 @@ public:
 	/******************* Setters *******************/
 	/***********************************************/
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void SetHasRifle();
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	void SetHasWeapon1();
 
 	/******************* Getters *******************/
 	/***********************************************/
 
-	UFUNCTION(BlueprintCallable, Category = Weapon)
-	bool GetHasRifle();
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
-	bool GetHasWeapon1();
 
 	FORCEINLINE bool GetAiming() const { return bAiming; }
 
-	UFUNCTION()
 	FORCEINLINE bool GetHasWeapon() const { return bHasWeapon; }
 
-	UFUNCTION()
 	FORCEINLINE bool GetWalkieTalkie() const { return bWalkieTalkie; }
+
+	FORCEINLINE AWeaponInteractableActor* GetEquippedWeapon() const { return EquippedWeapon; }
 
 	USkeletalMeshComponent* GetMesh1P() const { return Mesh1P; }
 
@@ -374,11 +379,19 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	TMap<EAmmoType, int32> AmmoMap;
 
+
+
 private:
 
 	//================================================================================//
 	// Variables & Properties
 	//================================================================================//
+
+	//Array of Items for inventory 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
+	TArray<AWeaponInteractableActor*> Inventory;
+
+	const int32 InventoryCapacity{4};
 
 	//SoundEffect based on firing weapon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess ="true"))
@@ -408,7 +421,6 @@ private:
 	UAnimMontage* ReloadMontage;
 
 
-
 	/* Starting amount bullets Pistol */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	int32 Starting9mmAmmo;
@@ -418,7 +430,7 @@ private:
 
 	// Currently Equiped Weapon;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	class AWeaponInteractableActor* EquippedWeapon;
+	AWeaponInteractableActor* EquippedWeapon;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	ECombatState CombatState;
@@ -475,9 +487,6 @@ protected:
 	UFUNCTION()
 	void EquipWeapon(class AWeaponInteractableActor* WeaponToEquip);//Something in parenthesis);
 
-	// For placing the weapon on the character body
-	
-	void UnequipWeapon(class AWeaponInteractableActor* WeaponToEquip);
 
 
 	// Beam particles 

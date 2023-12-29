@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
+#include "MallProject/WeaponType.h"
 #include "TMPAnimInstance.generated.h"
 
 /**
@@ -66,21 +67,14 @@ private:
 	float LastMovementOffsetYaw;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	bool bHasAnyweapon;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	bool bHasWeapon1;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	bool bHasWeapon2;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bAiming;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bWalkieTalkie;
 
-
+	//Weapon Type for the currently equipped weapon
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	EWeaponType EquippedWeaponType;
 
 	//================================================================================//
 	// FUNCTIONS

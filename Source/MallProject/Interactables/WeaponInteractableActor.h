@@ -6,21 +6,9 @@
 #include "MallProject/Interactables/InteractableActor.h"
 #include "MallProject/AmmoType.h"
 #include "Engine/DataTable.h"
+#include "MallProject/WeaponType.h"
 #include "WeaponInteractableActor.generated.h"
 
-/**
- * 
- */
-UENUM(BlueprintType)
-enum class EWeaponType : uint8
-{
-	Pistol UMETA(DisplayName = "Pistol"),
-	Rifle UMETA(DisplayName = "Rifle"), 
-	Shotgun UMETA(DisplayName = "Shotgun"),
-	Melee UMETA(DisplayName = "Melee"),			
-	SuperLamp UMETA(DisplayName = "SuperLamp"), 
-	Other UMETA(DisplayName = "Other")
-};
 
 USTRUCT(BlueprintType)
 struct FWeaponDataTable : public FTableRowBase
@@ -43,8 +31,7 @@ struct FWeaponDataTable : public FTableRowBase
 	USoundCue* EquipSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	USkeletalMeshComponent* ItemMesh;
-
+	class USkeletalMesh* WeaponMesh;
 };
 
 UCLASS()
@@ -75,17 +62,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data Table")
 	UDataTable* WeaponDatatable;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
+	int32 SlothIndex;
+
 	//================================================================================//
 	// FUNCTIONS
 	//================================================================================//
 
+	virtual void OnConstruction(const FTransform& Transform) override;
+
 	AWeaponInteractableActor();
 
 	virtual void Interact(class AMallProjectCharacter* CharacterReference) override;
-
-	virtual void BeginInteract() override;
-
-	virtual void EndInteract() override;
 
 	/*Called from the character when firing a weapon*/
 	void DecrementAmmo();
@@ -100,10 +89,13 @@ public:
 	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType;  }
 	FORCEINLINE FName GetReloadMontageSection() const { return ReloadMontageSection; }
 	FORCEINLINE int32 GetMagazineCapacity() const { return MagazineCapacity;  }
+	FORCEINLINE int32 GetSlothIndex() const { return SlothIndex; }
+
 
 	/******************* Setters *******************/
 	/***********************************************/
 
+	FORCEINLINE int32 SeSlothIndex(int32 Index) { return SlothIndex = Index; }
 
 
 private: 
@@ -113,10 +105,12 @@ private:
 	//================================================================================//
 
 	//Ammo count for this weapon
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	int32 AmmoCount;
 
 	//Maximun ammo our weapon can hold
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Properties", meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components", meta = (AllowPrivateAccess = "true"))
 	int32 MagazineCapacity;
+
+
 };

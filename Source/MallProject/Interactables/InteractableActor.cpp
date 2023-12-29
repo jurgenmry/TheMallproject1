@@ -200,8 +200,8 @@ void AInteractableActor::SetItemProperties(EItemState State)
 	{
 		case EItemState::Ready_For_Pickup:
 
-			//Set Collision Properties for the mesh
-			/*if (ItemMesh)
+			/*Set Collision Properties for the mesh
+			if (ItemMesh)
 			{
 				ItemMesh->SetSimulatePhysics(false);
 				ItemMesh->SetVisibility(true);
@@ -231,10 +231,25 @@ void AInteractableActor::SetItemProperties(EItemState State)
 			break;
 
 		case EItemState::Item_PickedUp:
+			//Set Collision Properties for the  SkeletalMesh
+			ItemSkeleton->SetSimulatePhysics(false);
+			ItemSkeleton->SetVisibility(false);
+			ItemSkeleton->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			ItemSkeleton->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+			//Set Collision properties for the area sphere 
+			SphereComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			SphereComps->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+			//Set Colision properties for the collision box
+			BoxComps->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			BoxComps->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+
+
 			break;
 
 		case EItemState::Equipped:
-
 
 			//Set Collision Properties for the  SkeletalMesh
 			

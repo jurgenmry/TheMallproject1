@@ -32,9 +32,6 @@ void AWeaponInteractableActor::Interact(AMallProjectCharacter* CharacterReferenc
 	
 	//FString InteractWeapon = "InteractWithWeapon";
 	//GEngine->AddOnScreenDebugMessage(10, 5.0f, FColor::Red, InteractWeapon, 1);
-
-
-
 	//WeaponComps->AttachWeapon(CharacterReference);
 }
 

@@ -28,6 +28,8 @@ public:
 
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void Interact(class AMallProjectCharacter* CharacterReference) override;
+
 	/**** Getters ****/
 	
 	FORCEINLINE EAmmoType GetAmmoType() const { return AmmoType; }

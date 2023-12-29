@@ -938,6 +938,11 @@ void AMallProjectCharacter::Interact()
 		{
 			EquippedWeapon = Cast<AWeaponInteractableActor>(TargetInteractable.GetObject());
 			
+			if (EquippedWeapon->GetPickUpSound())
+			{
+				UGameplayStatics::PlaySound2D(this, EquippedWeapon->GetPickUpSound());
+			}
+
 			if (EquippedWeapon)
 			{
 				EquipWeapon(EquippedWeapon);

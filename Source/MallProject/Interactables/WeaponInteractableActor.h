@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "MallProject/Interactables/InteractableActor.h"
 #include "MallProject/AmmoType.h"
+#include "Engine/DataTable.h"
 #include "WeaponInteractableActor.generated.h"
 
 /**
@@ -19,6 +20,31 @@ enum class EWeaponType : uint8
 	Melee UMETA(DisplayName = "Melee"),			
 	SuperLamp UMETA(DisplayName = "SuperLamp"), 
 	Other UMETA(DisplayName = "Other")
+};
+
+USTRUCT(BlueprintType)
+struct FWeaponDataTable : public FTableRowBase
+{
+	GENERATED_BODY()
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EAmmoType AmmoType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 WeaponAmmo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int32 MagazineCapacity;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USoundCue* PickUpSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USoundCue* EquipSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	USkeletalMeshComponent* ItemMesh;
+
 };
 
 UCLASS()
@@ -44,6 +70,10 @@ public:
 	//Fname for the reload Montage section
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
 	FName ReloadMontageSection;
+
+	//Datatable for weapon Properties
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Data Table")
+	UDataTable* WeaponDatatable;
 
 	//================================================================================//
 	// FUNCTIONS

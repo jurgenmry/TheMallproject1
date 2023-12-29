@@ -75,13 +75,15 @@ void ADoorInteractable::SetDoorState()
 
 void ADoorInteractable::Interact(class AMallProjectCharacter* CharacterReference)
 {
+	Super::Interact(CharacterReference);
+
 	if (CharacterReference)
 	{
 		if (ReadyState)
 		{
 			bOpen = !bOpen;
 
-			FVector PawnLocation = CharacterReference->GetActorLocation();
+			FVector PawnLocation = CharacterReference->GetActorLocation();//CharacterReference->GetActorLocation();
 			FVector Direction = GetActorLocation() - PawnLocation;
 			Direction = UKismetMathLibrary::LessLess_VectorRotator(Direction, GetActorRotation());
 

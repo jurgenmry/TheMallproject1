@@ -8,6 +8,8 @@
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 //Custome includes:
 #include "MallProject/UserInterface/MallHud.h"
@@ -66,6 +68,9 @@ void AInteractableActor::BeginPlay()
 
 void AInteractableActor::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIntex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	FString Overlapping = "Overlaping Interactable";
+	GEngine->AddOnScreenDebugMessage(10, 3.0f, FColor::Red, Overlapping, 1);
+
 	if (OtherActor != this && OtherActor)
 	{
 		AMallProjectCharacter* Character = Cast<AMallProjectCharacter>(OtherActor);
@@ -176,9 +181,10 @@ void AInteractableActor::Interact(AMallProjectCharacter* CharacterReference)
 
 	if (CharacterReference)
 	{
-		//FString textString = "Interaction Succesful"; 
-		//GEngine->AddOnScreenDebugMessage(1, 5.0f, FColor::Red, textString, 1);
-		//Destroy();
+		if (GetPickUpSound())
+		{
+			UGameplayStatics::PlaySound2D(this, GetPickUpSound());
+		}
 	}
 }
 

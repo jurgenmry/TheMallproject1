@@ -370,6 +370,9 @@ public:
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
 
+	//Map to Keep Track of ammo of different weapons
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	TMap<EAmmoType, int32> AmmoMap;
 
 private:
 
@@ -404,9 +407,7 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* ReloadMontage;
 
-	//Map to Keep Track of ammo of different weapons
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
-	TMap<EAmmoType, int32> AmmoMap;
+
 
 	/* Starting amount bullets Pistol */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))

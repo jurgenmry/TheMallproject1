@@ -48,7 +48,11 @@ public:
 	UPROPERTY(EditAnywhere,Category = "Components")
 	EItemState ItemState;
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	class USoundCue* PickupSound; //When we pick up something or open a door
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Components")
+	USoundCue* EquippedSound; //When we equip a weapon for example
 
 	//================================================================================//
 	// FUNCTIONS
@@ -79,6 +83,8 @@ public:
 	FORCEINLINE UBoxComponent* GetBoxComponent() const { return BoxComps; }
 	FORCEINLINE USphereComponent* GetSphereComponent() const { return SphereComps;  }
 	FORCEINLINE EItemState GetItemState() const { return ItemState; }
+	FORCEINLINE USoundCue* GetPickUpSound() const { return PickupSound; }
+	FORCEINLINE USoundCue* GetEquippedSound() const { return EquippedSound; }
 
 	//Setters
 

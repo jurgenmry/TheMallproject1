@@ -61,7 +61,7 @@ void AInteractableActor::BeginPlay()
 	SphereComps->OnComponentEndOverlap.AddDynamic(this, &AInteractableActor::OnSphereEndOverlap);
 
 	//Set Item Properties based on itemState;
-	
+	SetItemProperties(ItemState);
 }
 
 

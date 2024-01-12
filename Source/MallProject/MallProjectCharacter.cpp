@@ -183,7 +183,10 @@ void AMallProjectCharacter::BeginPlay()
 	CameraDefaultFOV = GetFPSCameraComponent()->FieldOfView;
 	CurrentFOV = CameraDefaultFOV;
 
-	//SpawnDefaultWeapon();
+
+	//Spawn the Default Weapon and Equip it 
+	EquipWeapon(SpawnDefaultWeapon());
+
 
 	//Initialized the value of the ammo;
 	InitializedAmmoMap(); 
@@ -495,7 +498,6 @@ void AMallProjectCharacter::TraceForItems()
 			//HUD->HideInteractionWidget();
 		}
 	}
-
 	//HUD->HideInteractionWidget();
 	NoInteractableFound();
 }
@@ -981,19 +983,14 @@ void AMallProjectCharacter::Interact()
 /// 
 
 
-void AMallProjectCharacter::SpawnDefaultWeapon()
+AWeaponInteractableActor* AMallProjectCharacter::SpawnDefaultWeapon()
 {
 	if (DefaultWeaponClass)
 	{
-		CurrentWeapon = GetWorld()->SpawnActor<AWeaponInteractableActor>(DefaultWeaponClass);
-		const USkeletalMeshSocket* RHandSocket = GetMesh1P()->GetSocketByName(FName("GunRightHandSocket"));
-
-		if (RHandSocket)
-		{
-			RHandSocket->AttachActor(CurrentWeapon, GetMesh1P());
-			CurrentWeapon->SetItemState(EItemState::Equipped);
-		}
+		return GetWorld()->SpawnActor<AWeaponInteractableActor>(DefaultWeaponClass);
 	}
+
+	return nullptr;
 }
 
 void AMallProjectCharacter::CharacterHasWeapon() //Need to check when to call
@@ -1008,35 +1005,38 @@ void AMallProjectCharacter::EquipWeapon(AWeaponInteractableActor* WeaponToEquip)
 {
 	if(WeaponToEquip)
 	{
-		//WeaponToEquip->SetItemState(EItemState::Equipped);
+		/*WeaponToEquip->SetItemState(EItemState::Equipped);
 
-		//WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		//WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		//WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-		
+		WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+		Create USkeletal Socket to attach the weapon
+		here*/
 
-		//Create USkeletal Socket to attach the weapon
 		const USkeletalMeshSocket* RHandSocket = GetMesh1P()->GetSocketByName(FName("GunRightHandSocket"));
 		if (RHandSocket)
 		{
 			RHandSocket->AttachActor(WeaponToEquip, GetMesh1P());
 
-			//WeaponToEquip->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::KeepRelativeTransform, FName("GunRightHandSocket"));
+			/*
+			WeaponToEquip->AttachToComponent(GetMesh1P(), FAttachmentTransformRules::KeepRelativeTransform, FName("GunRightHandSocket"));
 
-			//FString AddWeapon = "AddWeapon to Hand";
-			//GEngine->AddOnScreenDebugMessage(10, 5.0f, FColor::Red, AddWeapon, 0);
+			FString AddWeapon = "AddWeapon to Hand";
+			GEngine->AddOnScreenDebugMessage(10, 5.0f, FColor::Red, AddWeapon, 0);
 
-			//WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			//WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			//WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-			//WeaponToEquip->GetItemSkeleton()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			WeaponToEquip->GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			WeaponToEquip->GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			WeaponToEquip->GetItemSkeleton()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+			WeaponToEquip->GetItemSkeleton()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			*/
 
-			CurrentWeapon = WeaponToEquip;
-			CurrentWeapon->SetItemState(EItemState::Equipped);
-			//CharacterHasWeapon();
+			EquippedWeapon = WeaponToEquip;
+			EquippedWeapon->SetItemState(EItemState::Equipped);
 			
+			/*
+			//CharacterHasWeapon();
 			//WeaponToEquip = CurrentWeapon;
-
+			*/
 		}
 	}
 

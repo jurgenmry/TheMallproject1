@@ -420,7 +420,6 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	UAnimMontage* ReloadMontage;
 
-
 	/* Starting amount bullets Pistol */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	int32 Starting9mmAmmo;
@@ -434,7 +433,6 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	ECombatState CombatState;
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	class UWidgetComponent* AmmoWidget;
@@ -457,8 +455,11 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AWeaponInteractableActor>DefaultWeaponClass;
 
+	/*Item currently hit by our trace (could be null)*/
+	//AInteractableActor* TracehitItem;
+
 	//Current Weapon the character is Holding
-	AWeaponInteractableActor* CurrentWeapon;
+	//AWeaponInteractableActor* CurrentWeapon;
 
 
 	//================================================================================//
@@ -479,7 +480,7 @@ protected:
 	/* check if the current Weapon has ammo*/
 	bool WeaponHasAmmo();
 
-	void SpawnDefaultWeapon(); // We will start without default weapon
+	AWeaponInteractableActor* SpawnDefaultWeapon(); // We will start without default weapon
 	
 	void CharacterHasWeapon();
 
@@ -488,13 +489,8 @@ protected:
 	void EquipWeapon(class AWeaponInteractableActor* WeaponToEquip);//Something in parenthesis);
 
 
-
 	// Beam particles 
 	bool GetBeamEndLocation(const FVector& MuzzleSocketLocation, FVector& OutBeamLocation);
-
-
-
-	
 
 };
 

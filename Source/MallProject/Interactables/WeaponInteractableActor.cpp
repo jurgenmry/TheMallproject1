@@ -7,8 +7,12 @@
 #include "MallProject/Components/WeaponComponent.h"
 #include "Components/BoxComponent.h"
 #include "Components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
 
 //Custome includes
+
+#include "MallProject/MallProjectCharacter.h"
 
 
 void AWeaponInteractableActor::OnConstruction(const FTransform& Transform)
@@ -70,12 +74,25 @@ void AWeaponInteractableActor::Interact(AMallProjectCharacter* CharacterReferenc
 {
 	Super::Interact(CharacterReference);
 
+	/*
 	//GetBoxComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	//GetSphereComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	
 	//FString InteractWeapon = "InteractWithWeapon";
 	//GEngine->AddOnScreenDebugMessage(10, 5.0f, FColor::Red, InteractWeapon, 1);
 	//WeaponComps->AttachWeapon(CharacterReference);
+	*/
+
+	//testing for the interaction stage of weapon.
+	CharacterReference->SetEquippedWeapon(this);
+	if (this->GetPickUpSound())
+	{
+		UGameplayStatics::PlaySound2D(CharacterReference, GetPickUpSound());
+	}
+
+	this->SeSlothIndex(CharacterReference->GetInventory().Num());
+	this->SetItemState(EItemState::Item_PickedUp);
+
 }
 
 

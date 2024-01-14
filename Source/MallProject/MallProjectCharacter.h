@@ -342,6 +342,8 @@ public:
 	void NoInteractableFound();
 	void BeginInteract();
 	void EndInteract();
+	
+	UFUNCTION()
 	void Interact();
 
 	/* ----------------------------------------- */
@@ -350,7 +352,7 @@ public:
 	/******************* Setters *******************/
 	/***********************************************/
 
-
+	FORCEINLINE AWeaponInteractableActor* SetEquippedWeapon(AWeaponInteractableActor* Weapon) { return Weapon = EquippedWeapon; } //testing
 
 	/******************* Getters *******************/
 	/***********************************************/
@@ -374,6 +376,9 @@ public:
 
 	USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 
+	FORCEINLINE TArray<AWeaponInteractableActor*> GetInventory() { return Inventory; }
+
+	FORCEINLINE int32 GetInventoryCapacity() const { return InventoryCapacity; }
 
 	//Map to Keep Track of ammo of different weapons
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))
@@ -391,7 +396,7 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory", meta = (AllowPrivateAccess = "true"))
 	TArray<AWeaponInteractableActor*> Inventory;
 
-	const int32 InventoryCapacity{4};
+	const int32 InventoryCapacity{6};
 
 	//SoundEffect based on firing weapon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess ="true"))

@@ -186,6 +186,7 @@ void AMallProjectCharacter::BeginPlay()
 
 	//Spawn the Default Weapon and Equip it 
 	EquipWeapon(SpawnDefaultWeapon());
+	Inventory.Add(EquippedWeapon);
 
 
 	//Initialized the value of the ammo;
@@ -738,10 +739,10 @@ void AMallProjectCharacter::FourKeyPressed()
 void AMallProjectCharacter::ExchangeInventoryItems(int32 CurrentItemIndex, int32 NewItemIndex)
 {
 	if (EquippedWeapon == nullptr) return;
-	if ((CurrentItemIndex == NewItemIndex) && (NewItemIndex >= Inventory.Num())) return;
+	if ((CurrentItemIndex == NewItemIndex) || (NewItemIndex >= Inventory.Num())) return;
 
-	AWeaponInteractableActor* OldEquippedWeapon = EquippedWeapon;
-	AWeaponInteractableActor* NewWeapon = Cast<AWeaponInteractableActor>(Inventory[NewItemIndex]);
+	auto* OldEquippedWeapon = EquippedWeapon;
+	auto* NewWeapon = Cast<AWeaponInteractableActor>(Inventory[NewItemIndex]);
 
 	EquipWeapon(NewWeapon);
 	OldEquippedWeapon->SetItemState(EItemState::Item_PickedUp);
@@ -933,6 +934,19 @@ void AMallProjectCharacter::Interact()
 		//I think this part of code should go when begin interact
 		if (TargetInteractable->InteractableData.InteractableType == EInteractableType::Weapon)
 		{
+			AWeaponInteractableActor* Interactable = Cast<AWeaponInteractableActor>(TargetInteractable.GetObject());
+			if (Inventory.Num() < GetInventoryCapacity())
+			{
+				Inventory.Add(Interactable);
+				Interactable->Interact(this);
+			}
+
+			else
+			{
+				//Inventory is full
+			}
+			
+			/**
 			EquippedWeapon = Cast<AWeaponInteractableActor>(TargetInteractable.GetObject());
 			
 			if (EquippedWeapon->GetPickUpSound())
@@ -967,6 +981,9 @@ void AMallProjectCharacter::Interact()
 				EquippedWeapon->SetActorEnableCollision(false);
 				EquippedWeapon->GetItemSkeleton()->SetVisibility(false);
 			}
+			*/
+
+			//Interactable->Interact(this);
 		}
 
 		else

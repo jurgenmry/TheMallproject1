@@ -14,6 +14,11 @@
 #include "Kismet/KismetMathLibrary.h"
 
 
+UTMPAnimInstance::UTMPAnimInstance()
+{
+
+}
+
 void UTMPAnimInstance::NativeInitializeAnimation()
 {
 	Character = Cast<AMallProjectCharacter>(TryGetPawnOwner());
@@ -41,7 +46,6 @@ void UTMPAnimInstance::UpdateAnimationProperties(float DeltaTime)
 		bIsinAir = Character->GetMovementComponent()->IsFalling();
 
 		//is the character acelerating ?
-
 		if (Character->GetCharacterMovement()->GetCurrentAcceleration().Size() > 0.0f)
 		{
 			bIsAcelerating = true;
@@ -78,13 +82,29 @@ void UTMPAnimInstance::UpdateAnimationProperties(float DeltaTime)
 			EquippedWeaponType = Character->GetEquippedWeapon()->GetWeaponType();
 		}
 
-
+		bHasWeaponEquipped = Character->GetHasWeapon();
 		//bAiming = Character->GetAiming();
 
 		bWalkieTalkie = Character->GetWalkieTalkie();
 
-
 	}
 
+	TurnInPlace();
+}
 
+void UTMPAnimInstance::TurnInPlace()
+{
+	if (!Character) return;
+	if (Speed > 0)
+	{
+		//We cannot turn in place, the character is moving
+	}
+	else
+	{
+		CharacterYawPreviousFrame = CharacterYaw;
+		CharacterYaw = Character->GetActorRotation().Yaw;
+		const float YawDelta{ CharacterYaw - CharacterYawPreviousFrame };
+		RootYawOffset -= YawDelta;
+		GEngine->AddOnScreenDebugMessage(1, -1, FColor::Blue, FString::Printf(TEXT("Character Yaw: %f"), CharacterYaw));
+	}
 }

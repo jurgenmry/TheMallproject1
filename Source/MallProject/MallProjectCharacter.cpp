@@ -34,7 +34,7 @@
 //================================================================================//
 
 AMallProjectCharacter::AMallProjectCharacter()
-	/* Weapon States for  animation*/
+/* Weapon States for  animation*/
 	: bHasRifle(false)   // Character doesnt have a rifle at start
 	, bHasWeapon(false)  //Overall Weapon Set up 
 	, bAiming(false)
@@ -45,7 +45,6 @@ AMallProjectCharacter::AMallProjectCharacter()
 	, CameraZoomFOV(60.0f)
 	, CurrentFOV(0.0f)
 	, ZoomInterpSpeed(20.0f)
-	, bHasWeapon1(false) //Character does not start with any weapon
 
 	/* Turn rates for aiming / Not aiming */
 	, BaseLookUpRateX(0.5f)
@@ -60,11 +59,12 @@ AMallProjectCharacter::AMallProjectCharacter()
 	, AutomaticFireRate(0.5)
 
 	/* combar variables */
-	,CombatState(ECombatState::ECS_Unnocupied)
+	, CombatState(ECombatState::ECS_Unnocupied)
 
 	/* Weapon Amunitions */
 	, Starting9mmAmmo(50)
 	, Starting_AR_Ammo(120)
+	, Starting_Shotgun_Ammo(10)
 {
 	
 	// Set size for collision capsule
@@ -246,6 +246,7 @@ void AMallProjectCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 
 		//adding Weapons 1 to 4 
+		EnhancedInputComponent->BindAction(ChooseNoWeapon, ETriggerEvent::Triggered, this, &AMallProjectCharacter::TabButtonPressed);
 		EnhancedInputComponent->BindAction(ChooseWeapon1Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::OneKeyPressed); 
 		EnhancedInputComponent->BindAction(ChooseWeapon2Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::TwoKeyPressed);
 		EnhancedInputComponent->BindAction(ChooseWeapon2Action, ETriggerEvent::Triggered, this, &AMallProjectCharacter::ThreeKeyPressed);
@@ -423,10 +424,12 @@ void AMallProjectCharacter::EndJogging()
 
 void AMallProjectCharacter::AimingButtonPressed()
 {
+	/*
 	if (bHasWeapon)
 	{
 		bAiming = true;
 	}
+	*/
 }
 
 void AMallProjectCharacter::AimingButtonReleaded()
@@ -708,9 +711,33 @@ void AMallProjectCharacter::WalkieTalkieButtonHold()
 
 
 // code for choosing of weapons
+
+void AMallProjectCharacter::TabButtonPressed()
+{
+	if (bHasWeapon)
+	{
+		bHasWeapon = false;
+		GetEquippedWeapon()->GetItemSkeleton()->SetVisibility(false);
+
+	}
+	else if (!bHasWeapon)
+	{
+		bHasWeapon = true;
+		GetEquippedWeapon()->GetItemSkeleton()->SetVisibility(true);
+	}
+}
+
 void AMallProjectCharacter::OneKeyPressed()
 {
 	if (!EquippedWeapon) return;
+	/*
+	if (EquippedWeapon->GetSlothIndex() == 0) 
+	{ 
+		bHasWeapon = true;
+		GetEquippedWeapon()->GetItemSkeleton()->SetVisibility(true);
+	}
+	*/
+
 	if (EquippedWeapon->GetSlothIndex() == 0) return;
 	ExchangeInventoryItems(EquippedWeapon->GetSlothIndex(), 0);
 }
@@ -738,15 +765,19 @@ void AMallProjectCharacter::FourKeyPressed()
 
 void AMallProjectCharacter::ExchangeInventoryItems(int32 CurrentItemIndex, int32 NewItemIndex)
 {
-	if (EquippedWeapon == nullptr) return;
-	if ((CurrentItemIndex == NewItemIndex) || (NewItemIndex >= Inventory.Num())) return;
+	if (bHasWeapon)
+	{
+		if (EquippedWeapon == nullptr) return;
+		if ((CurrentItemIndex == NewItemIndex) || (NewItemIndex >= Inventory.Num())) return;
 
-	auto* OldEquippedWeapon = EquippedWeapon;
-	auto* NewWeapon = Cast<AWeaponInteractableActor>(Inventory[NewItemIndex]);
+		auto* OldEquippedWeapon = EquippedWeapon;
+		auto* NewWeapon = Cast<AWeaponInteractableActor>(Inventory[NewItemIndex]);
 
-	EquipWeapon(NewWeapon);
-	OldEquippedWeapon->SetItemState(EItemState::Item_PickedUp);
-	NewWeapon->SetItemState(EItemState::Equipped);
+		EquipWeapon(NewWeapon);
+		OldEquippedWeapon->SetItemState(EItemState::Item_PickedUp);
+		NewWeapon->SetItemState(EItemState::Equipped);
+		NewWeapon->GetItemSkeleton()->SetVisibility(true);
+	}
 }
 
 
@@ -1071,8 +1102,8 @@ void AMallProjectCharacter::InitializedAmmoMap()
 {
 	AmmoMap.Add(EAmmoType::E9_mm, Starting9mmAmmo);
 	AmmoMap.Add(EAmmoType::AR, Starting_AR_Ammo);
+	AmmoMap.Add(EAmmoType::Shootgun, Starting_Shotgun_Ammo);
 }
-
 
 bool AMallProjectCharacter::WeaponHasAmmo()
 {

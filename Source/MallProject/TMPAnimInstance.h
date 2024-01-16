@@ -28,13 +28,16 @@ public:
 	// FUNCTIONS
 	//================================================================================//
 	
+	UTMPAnimInstance();
+
 	virtual void NativeInitializeAnimation() override;
 
 	
 	// This is a custome tick funtion toi update the info of the animation graph
 	UFUNCTION(BlueprintCallable)
 	void UpdateAnimationProperties(float DeltaTime);
-
+	
+	void TurnInPlace();
 
 private:
 
@@ -69,8 +72,18 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bAiming;
 
+	//Yaw of the character this frame
+	float CharacterYaw;
+
+	float CharacterYawPreviousFrame;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float RootYawOffset;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bWalkieTalkie;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	bool bHasWeaponEquipped;
 
 	//Weapon Type for the currently equipped weapon
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))

@@ -100,9 +100,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	bool bIsJogging;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
-	bool bHasWeapon1;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (ClampMin ="0.0", ClampMax ="1.0"))
 	float BaseLookUpRateX;
 
@@ -226,6 +223,9 @@ public:
 	class UInputAction* JogAction;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
+	class UInputAction* ChooseNoWeapon;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	class UInputAction* ChooseWeapon1Action;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
@@ -309,6 +309,7 @@ public:
 	void WalkieTalkieButtonHold();
 	
 	//changing Weapons
+	void TabButtonPressed(); //can b other button
 	void OneKeyPressed();
 	void TwoKeyPressed();
 	void ThreeKeyPressed();
@@ -431,6 +432,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
 	int32 Starting_AR_Ammo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat", meta = (AllowPrivateAccess = "true"))
+	int32 Starting_Shotgun_Ammo;
 
 	// Currently Equiped Weapon;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat", meta = (AllowPrivateAccess = "true"))

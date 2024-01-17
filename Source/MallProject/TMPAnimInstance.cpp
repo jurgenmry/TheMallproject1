@@ -97,14 +97,51 @@ void UTMPAnimInstance::TurnInPlace()
 	if (!Character) return;
 	if (Speed > 0)
 	{
-		//We cannot turn in place, the character is moving
+		RootYawOffset = 0.0f;
+		CharacterYaw = Character->GetActorRotation().Yaw;
+		CharacterYawPreviousFrame = CharacterYaw;
+		RotationCurve = 0.0f;
+		RotationCurveLastFrame = 0.0f;
 	}
 	else
 	{
 		CharacterYawPreviousFrame = CharacterYaw;
 		CharacterYaw = Character->GetActorRotation().Yaw;
 		const float YawDelta{ CharacterYaw - CharacterYawPreviousFrame };
-		RootYawOffset -= YawDelta;
-		GEngine->AddOnScreenDebugMessage(1, -1, FColor::Blue, FString::Printf(TEXT("Character Yaw: %f"), CharacterYaw));
+		
+		//Updated and clapm from -180 to 180
+		RootYawOffset = UKismetMathLibrary::NormalizeAxis(RootYawOffset - YawDelta);
+
+		const float Turning{ GetCurveValue(TEXT("Turning"))};
+		//1.0 if tuning 0.0 if not 
+		if (Turning > 0)
+		{
+			RotationCurveLastFrame = RotationCurve;
+			RotationCurve = GetCurveValue(TEXT("Rotation"));
+			const float DeltaRotation{ RotationCurve - RotationCurveLastFrame };
+
+			//if root yaw offset > 0 is positive we are turning left
+			// if root yaw offset < 0 is negative then we are turning right 
+			/*
+			if (RootYawOffset > 0)
+			{
+				RootYawOffset -= DeltaRotation;
+			}
+			else
+			{
+				RootYawOffset += DeltaRotation;
+			}
+			*/
+
+			RootYawOffset > 0 ? RootYawOffset -= DeltaRotation : RootYawOffset += DeltaRotation;
+
+			const float ABSRootYawOffset{ FMath::Abs(RootYawOffset) };
+			if (ABSRootYawOffset > 90)
+			{
+				const float  YawExcess{ ABSRootYawOffset - 90.0f };
+				RootYawOffset > 0 ? RootYawOffset -= YawExcess : RootYawOffset += YawExcess;
+			}
+		}
+		//GEngine->AddOnScreenDebugMessage(1, -1, FColor::Blue, FString::Printf(TEXT("Character Yaw: %f"), CharacterYaw));
 	}
 }

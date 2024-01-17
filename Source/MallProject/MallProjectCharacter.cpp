@@ -71,7 +71,7 @@ AMallProjectCharacter::AMallProjectCharacter()
 	GetCapsuleComponent()->InitCapsuleSize(55.f, 96.0f);
 		
 
-	//Create the srping arm component
+	//Create the sprping arm component
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->TargetArmLength = 0.0f;
 	CameraBoom->SetupAttachment(GetCapsuleComponent());
@@ -104,7 +104,7 @@ AMallProjectCharacter::AMallProjectCharacter()
 	BodySpringArm->SetupAttachment(GetFPSCameraComponent());
 	BodySpringArm->bEnableCameraRotationLag = true;
 	BodySpringArm->CameraRotationLagSpeed = 7.0f; 
-	BodySpringArm->bUsePawnControlRotation = false;
+	BodySpringArm->bUsePawnControlRotation = true;
 
 	// Create a mesh component that will be used when being viewed from a '1st person' view (when controlling this pawn)
 	Mesh1P = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("CharacterMesh1P"));

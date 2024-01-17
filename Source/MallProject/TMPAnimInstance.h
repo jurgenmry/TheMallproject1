@@ -69,6 +69,11 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	float LastMovementOffsetYaw;
 
+	/*Rotation curve value this frama*/
+	float RotationCurve;
+
+	float RotationCurveLastFrame;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bAiming;
 

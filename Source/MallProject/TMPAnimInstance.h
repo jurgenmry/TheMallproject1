@@ -37,6 +37,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void UpdateAnimationProperties(float DeltaTime);
 	
+	//Handle turn in place variables
 	void TurnInPlace();
 
 private:
@@ -77,13 +78,6 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bAiming;
 
-	//Yaw of the character this frame
-	float CharacterYaw;
-
-	float CharacterYawPreviousFrame;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-	float RootYawOffset;
-
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	bool bWalkieTalkie;
 
@@ -93,6 +87,22 @@ private:
 	//Weapon Type for the currently equipped weapon
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 	EWeaponType EquippedWeaponType;
+
+
+	//--------------------------//
+	/* Root in Place animations */
+	//--------------------------//
+	
+
+	//Yaw of the character this frame
+	float CharacterYaw;
+
+	float CharacterYawPreviousFrame;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+	float RootYawOffset;
+
+
 
 	//================================================================================//
 	// FUNCTIONS

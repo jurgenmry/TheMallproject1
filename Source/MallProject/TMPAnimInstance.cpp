@@ -15,6 +15,16 @@
 
 
 UTMPAnimInstance::UTMPAnimInstance()
+	:Speed(0.0f)
+	, bIsinAir(false)
+	, bIsAcelerating(false)
+	, MovementOffsetYaw(0.0f)
+	, LastMovementOffsetYaw(0.0f)
+	, bAiming(false)
+	, CharacterYaw (0.0f)
+	, CharacterYawPreviousFrame(0.0f)
+	, RootYawOffset(0.0f)
+
 {
 
 }
